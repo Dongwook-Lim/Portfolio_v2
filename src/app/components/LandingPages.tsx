@@ -1,0 +1,262 @@
+import React, { useEffect, useState } from 'react';
+import { motion, MotionValue, useTransform } from 'motion/react';
+import curveImgSrc from "../../imports/컬러-371.jpg";
+
+interface LandingPagesProps {
+  smoothScrollX: MotionValue<number>;
+  setIsHovering: (val: boolean) => void;
+}
+
+export function LandingPages({ smoothScrollX, setIsHovering }: LandingPagesProps) {
+  const [ww, setWw] = useState(typeof window !== 'undefined' ? window.innerWidth : 1000);
+  
+  useEffect(() => {
+    setWw(window.innerWidth);
+    const handleResize = () => setWw(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Panel 1 Parallax 
+  const p1TextX = useTransform(smoothScrollX, [0, ww], [0, ww * 0.2]); 
+  const p1SubTextX = useTransform(smoothScrollX, [0, ww], [0, ww * -0.2]); 
+  const p1ImgX = useTransform(smoothScrollX, [0, ww], [0, ww * -0.1]); 
+
+  // Combined Panel 2 & 3 Parallax (Span across 200vw)
+  // Background text now has a longer range to seamlessly parallax across the joined panel
+  const p2Title1X = useTransform(smoothScrollX, [0, ww, ww * 3], [ww * -0.2, 0, ww * 0.2]); 
+  const p2Title2X = useTransform(smoothScrollX, [0, ww, ww * 3], [ww * -0.4, 0, ww * 0.4]); 
+  
+  // Elements in the first half (0 ~ 100vw)
+  const p2TextX = useTransform(smoothScrollX, [0, ww, ww * 2], [ww * 0.3, 0, ww * -0.3]); 
+  const p2ImgX = useTransform(smoothScrollX, [0, ww, ww * 2], [ww * -0.05, 0, ww * 0.05]); 
+
+  // Curved image trajectory
+  const curveImgY = useTransform(smoothScrollX, [0, ww, ww * 2, ww * 3], ['70vh', '15vh', '-20vh', '-60vh']);
+  const curveImgX = useTransform(smoothScrollX, [0, ww, ww * 2, ww * 3], ['-10vw', '15vw', '5vw', '-15vw']);
+  const curveImgRotate = useTransform(smoothScrollX, [0, ww, ww * 2, ww * 3], [-15, 5, -5, -15]);
+
+  // Elements in the second half (100vw ~ 200vw)
+  const p3Text1X = useTransform(smoothScrollX, [ww, ww * 2, ww * 3], [ww * 0.1, 0, ww * -0.1]); 
+  const p3Text2X = useTransform(smoothScrollX, [ww, ww * 2, ww * 3], [ww * -0.1, 0, ww * 0.1]); 
+  const p3HugeX = useTransform(smoothScrollX, [ww, ww * 2, ww * 3], [ww * -0.5, 0, ww * 0.5]); 
+
+  // Panel 4 Parallax (Now starts at ww * 3 because previous panel takes 200vw)
+  const p4SectionY = useTransform(smoothScrollX, [ww * 2, ww * 3], ['100vh', '0vh']);
+  const p4SectionX = useTransform(smoothScrollX, [ww * 2, ww * 3], [-ww, 0]);
+  const p23SectionX = useTransform(smoothScrollX, [ww * 2, ww * 3], [0, ww]);
+  const p4Img1X = useTransform(smoothScrollX, [ww * 3, ww * 4, ww * 5], [ww * 0.2, 0, ww * -0.2]); 
+  const p4Img2X = useTransform(smoothScrollX, [ww * 3, ww * 4, ww * 5], [ww * -0.2, 0, ww * 0.2]); 
+
+  return (
+    <div className="flex h-full shrink-0 items-center">
+        
+        {/* Panel 1 */}
+        <section className="w-[100vw] h-full relative flex items-center justify-center shrink-0 bg-[#000000] text-white overflow-hidden">
+            {/* Top Text - Slides down from top */}
+            <motion.h1 
+                className="uppercase text-[clamp(4rem,17vw,25rem)] leading-[0.85] tracking-[-0.03em] absolute top-[8%] left-[4vw] z-10 pointer-events-none"
+                style={{ x: p1TextX, fontFamily: '"Anton", sans-serif' }}
+                initial={{ y: -100, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 1.3 }}
+            >
+                WEB DEVELOPER
+            </motion.h1>
+
+            {/* Left Image Box - Slides in from left */}
+            <motion.div 
+                className="absolute left-[4vw] top-[max(32%,8vh_+_15vw)] z-20"
+                style={{ x: p1ImgX }}
+            >
+                <motion.div
+                    className="w-[80vw] md:w-[24vw] aspect-[4/3] bg-[#c8c8c8] flex items-center justify-center overflow-hidden"
+                    initial={{ x: -100, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 1.5 }}
+                >
+                    <img 
+                        src="https://images.unsplash.com/photo-1549298222-1c31e8915347?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtYWdhemluZSUyMG1vY2t1cHxlbnwxfHx8fDE3Nzc4MzMzMzN8MA&ixlib=rb-4.1.0&q=80&w=1080" 
+                        className="w-[80%] h-auto rotate-[-15deg] shadow-2xl mix-blend-multiply" 
+                        alt="Book Mockup" 
+                    />
+                </motion.div>
+            </motion.div>
+
+            {/* Middle Texts - Slides up from bottom */}
+            <motion.div 
+                className="absolute left-[4vw] md:left-[32vw] top-[calc(max(32%,8vh_+_15vw)_+_40vh)] md:top-[max(32%,8vh_+_15vw)] w-[90vw] md:w-[20vw] z-20 font-['Inter'] text-xs md:text-[14px] leading-[1.4] text-[#e0e0e0] pointer-events-none"
+                style={{ x: p1SubTextX }}
+                initial={{ y: 100, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 1.7 }}
+            >
+                <p className="mb-6">
+                    Like film photography,<br/>
+this space captures moments<br/>
+as you move through it.<br/>
+Each scroll reveals a new frame,<br/>
+shaped by timing, motion, and detail.
+                </p>
+                <p>
+                    Like memories, these moments<br/>
+don’t just appear, but stay —<br/>
+where design and code come together<br/>
+to linger in your memory
+                </p>
+            </motion.div>
+
+            {/* Bottom Chapters List - Slides up from bottom */}
+            <motion.div 
+                className="absolute left-[4vw] md:left-[32vw] top-[calc(max(32%,8vh_+_15vw)_+_65vh)] md:top-[max(65%,8vh_+_15vw_+_20vh)] z-20 font-['Inter'] text-xs md:text-[14px] leading-[1.4] text-[#e0e0e0] pointer-events-none"
+                initial={{ y: 100, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 1.8 }}
+            >
+                <p className="text-[#888] mb-1">Chapters:</p>
+                <ul className="flex flex-col">
+                    <li>Intro.</li>
+                    <li>About me</li>
+                    <li>Gallery</li>
+                    <li>Contact me</li>
+                </ul>
+            </motion.div>
+
+            {/* Right Scroll Indicator - Slides in from right */}
+            <motion.div 
+                className="absolute right-[4vw] bottom-[8%] flex items-center gap-2 z-20"
+                initial={{ x: 100, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 1.9 }}
+            >
+                <div className="w-[45px] h-[45px] md:w-[60px] md:h-[60px] rounded-full bg-theme-primary flex items-center justify-center -mr-2 translate-y-3 md:translate-y-4">
+                   <motion.svg 
+                      className="w-[16px] h-[16px] md:w-[20px] md:h-[20px]" 
+                      viewBox="0 0 24 24" 
+                      fill="none" 
+                      stroke="white" 
+                      strokeWidth="3" 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round"
+                      animate={{ x: [0, 5, 0] }}
+                      transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                   >
+                      <path d="M5 12h14" />
+                      <path d="m12 5 7 7-7 7" />
+                   </motion.svg>
+                </div>
+                <span className="font-['Inter'] text-[50px] md:text-[90px] tracking-[-0.05em] leading-none lowercase" style={{ fontFamily: '"Oswald", sans-serif' }}>scroll</span>
+            </motion.div>
+
+            {/* Right Edge Image - Slides in from right */}
+            <motion.div
+                className="absolute right-[-5vw] top-[max(60%,12vh_+_16vw)] z-10"
+                style={{ x: p1ImgX }}
+            >
+                <motion.img 
+                    src="https://images.unsplash.com/photo-1578301978018-3005759f48f7?q=80&w=800&auto=format&fit=crop" 
+                    alt="" 
+                    className="w-[35vw] md:w-[18vw] h-auto object-cover shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] cursor-pointer" 
+                    initial={{ x: 100, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 2.0 }}
+                    onMouseEnter={() => setIsHovering(true)}
+                    onMouseLeave={() => setIsHovering(false)}
+                />
+            </motion.div>
+        </section>
+
+        {/* Combined Panel 2 & 3 (Width: 200vw) */}
+        <motion.section 
+            className="w-[200vw] h-full relative shrink-0 bg-[#e5e5e5] text-[#111] overflow-hidden"
+            style={{ x: p23SectionX }}
+        >
+            
+            {/* Background Huge Text - Spanning seamlessly across the 200vw boundary */}
+            <div className="absolute inset-0 flex flex-col justify-center items-start pl-[10vw] z-10 pointer-events-none">
+                <motion.h2 className="text-[clamp(6rem,15vw,25rem)] leading-[0.9] tracking-[-0.05em] whitespace-nowrap" style={{ x: p2Title1X, fontFamily: '"Playfair Display", serif' }}>LIM,</motion.h2>
+                <motion.h2 className="text-[clamp(6rem,15vw,25rem)] leading-[0.9] tracking-[-0.05em] ml-[20vw] md:ml-[30vw] whitespace-nowrap" style={{ x: p2Title2X, fontFamily: '"Playfair Display", serif' }}>DONGWOOK</motion.h2>
+            </div>
+
+            {/* Curved Animation Image */}
+            <motion.img 
+                src={curveImgSrc}
+                alt="Curved scroll image"
+                className="absolute left-[35vw] md:left-[45vw] top-0 w-[45vw] md:w-[22vw] aspect-[3/4] object-cover shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] z-20 cursor-pointer"
+                style={{ x: curveImgX, y: curveImgY, rotate: curveImgRotate }}
+                onMouseEnter={() => setIsHovering(true)}
+                onMouseLeave={() => setIsHovering(false)}
+            />
+
+            {/* Elements from Original Panel 2 (Positioned 0vw ~ 100vw) */}
+            <motion.div 
+                className="absolute left-[70vw] md:left-[75vw] top-[20%] md:top-[30%] w-[25vw] md:w-[15vw] z-30 font-['Inter'] text-[10px] md:text-xs leading-relaxed bg-white rounded-full p-4 md:p-8 aspect-square flex flex-col justify-center cursor-pointer shadow-[0_10px_30px_-5px_rgba(0,0,0,0.2)]"
+                style={{ x: p2TextX }}
+                onMouseEnter={() => setIsHovering(true)}
+                onMouseLeave={() => setIsHovering(false)}
+            >
+                <span className="font-bold mb-2 block text-center">(01)</span>
+                Nicolas Poussin was the leading painter of the classical French Baroque style, although he spent most of his working life in Rome.
+            </motion.div>
+
+            <motion.img 
+                src="https://images.unsplash.com/photo-1577083552431-6e5fd01988ec?q=80&w=800&auto=format&fit=crop" 
+                alt="" 
+                className="absolute w-[45vw] md:w-[30vw] h-auto left-[30vw] md:left-[40vw] top-1/2 -translate-y-1/2 z-20 rotate-[-5deg] object-cover shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] cursor-pointer" 
+                style={{ x: p2ImgX }}
+                onMouseEnter={() => setIsHovering(true)}
+                onMouseLeave={() => setIsHovering(false)}
+            />
+
+            {/* Elements from Original Panel 3 (Positioned 100vw ~ 200vw) */}
+            <motion.div className="absolute top-[20%] left-[110vw] w-[35vw] md:w-[20vw] z-20 font-['Inter'] text-[10px] md:text-sm leading-relaxed" style={{ x: p3Text1X }}>
+                <span className="font-bold mb-1 block">(02)</span>
+                He returned to Paris for a brief period to serve as First Painter to the King under Louis XIII and Cardinal Richelieu, but soon returned to Rome and resumed his more traditional themes.
+            </motion.div>
+
+            <motion.div className="absolute top-[35%] md:top-[20%] right-[10vw] md:right-[15vw] w-[35vw] md:w-[20vw] z-20 font-['Inter'] text-[10px] md:text-sm leading-relaxed" style={{ x: p3Text2X }}>
+                <span className="font-bold mb-1 block">(03)</span>
+                His work is characterized by clarity, logic, and order, and favors line over color. Until the 20th century he remained a major inspiration for such classically-oriented artists.
+            </motion.div>
+
+            <motion.div className="absolute bottom-10 left-[100vw] w-full whitespace-nowrap z-10 pointer-events-none" style={{ x: p3HugeX }}>
+                <h2 className="text-[clamp(4rem,15vw,20rem)] leading-[0.8] tracking-[-0.02em] translate-x-[-10vw] md:translate-x-[-30vw]" style={{ fontFamily: '"Playfair Display", serif' }}>
+                    MARCH 29, 1993 &mdash;
+                </h2>
+            </motion.div>
+        </motion.section>
+
+        {/* Panel 4 */}
+        <motion.section 
+            className="w-[100vw] h-full relative flex items-center justify-center shrink-0 text-white overflow-hidden bg-[#0c0c0c] z-30 ring-2 ring-[#0c0c0c]"
+            style={{ x: p4SectionX, y: p4SectionY }}
+        >
+            <h1 className="uppercase text-[clamp(8rem,20vw,30rem)] leading-[0.8] tracking-[-0.02em] absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 z-20 mix-blend-difference pointer-events-none" style={{ fontFamily: '"Anton", sans-serif' }}>
+                Gallery
+            </h1>
+
+            <motion.img 
+                src="https://images.unsplash.com/photo-1579783901586-d88db74b4fe4?q=80&w=600&auto=format&fit=crop" 
+                alt="" 
+                className="absolute w-[35vw] md:w-[20vw] left-[10%] md:left-[15%] top-[20%] z-10 object-cover shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] cursor-pointer" 
+                style={{ x: p4Img1X }}
+                onMouseEnter={() => setIsHovering(true)}
+                onMouseLeave={() => setIsHovering(false)}
+            />
+                 
+            <motion.img 
+                src="https://images.unsplash.com/photo-1580136579312-94651dfd596d?q=80&w=600&auto=format&fit=crop" 
+                alt="" 
+                className="absolute w-[40vw] md:w-[25vw] right-[5%] md:right-[10%] bottom-[20%] z-10 object-cover shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] cursor-pointer" 
+                style={{ x: p4Img2X }}
+                onMouseEnter={() => setIsHovering(true)}
+                onMouseLeave={() => setIsHovering(false)}
+            />
+        </motion.section>
+
+        {/* End of Exhibition -> Bridging to Gallery */}
+        
+
+    </div>
+  );
+}
