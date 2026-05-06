@@ -14,7 +14,11 @@ function cn(...inputs: ClassValue[]) {
 
 const wordGroups = [
   { chars: ['C', 'O', 'N'], img: contactMe1Img, meaning: '= TOGETHER' },
-  { chars: ['T', 'A', 'C', 'T'], img: contactMe2Img, meaning: '= TOUCH (YOUR PROJECT)' },
+  {
+    chars: ['T', 'A', 'C', 'T'],
+    img: contactMe2Img,
+    meaning: '= TOUCH (YOUR PROJECT)',
+  },
   { chars: ['\u00A0'], img: '' },
   { chars: ['M', 'E'], img: contactMe3Img, meaning: '= (WITH) LIMDONGWOOK' },
 ];
@@ -26,7 +30,12 @@ interface ContactPanelProps {
   ww: number;
 }
 
-export function ContactPanel({ setIsHovering, smoothScrollX, maxScroll, ww }: ContactPanelProps) {
+export function ContactPanel({
+  setIsHovering,
+  smoothScrollX,
+  maxScroll,
+  ww,
+}: ContactPanelProps) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -67,8 +76,8 @@ export function ContactPanel({ setIsHovering, smoothScrollX, maxScroll, ww }: Co
               src={group.img}
               alt=""
               className={cn(
-                "absolute bottom-[2vh] md:bottom-[10vh] left-0 h-auto rounded-sm shadow-[0_30px_60px_rgba(0,0,0,0.3)] origin-bottom",
-                i === 3 ? "w-[30vw] md:w-[21vw]" : "w-[40vw] md:w-[30vw]"
+                'absolute bottom-[2vh] md:bottom-[10vh] left-0 h-auto rounded-sm shadow-[0_30px_60px_rgba(0,0,0,0.3)] origin-bottom',
+                i === 3 ? 'w-[30vw] md:w-[21vw]' : 'w-[40vw] md:w-[30vw]',
               )}
               style={{
                 x: mouseX,
@@ -79,9 +88,9 @@ export function ContactPanel({ setIsHovering, smoothScrollX, maxScroll, ww }: Co
                 scale: isHovered ? 1 : 0.8,
                 opacity: isHovered ? 1 : 0,
                 y: isHovered ? 0 : 50,
-                rotate: isHovered ? (i % 2 === 0 ? 3 : -3) : 0
+                rotate: isHovered ? (i % 2 === 0 ? 3 : -3) : 0,
               }}
-              transition={{ type: "spring", damping: 30, stiffness: 200 }}
+              transition={{ type: 'spring', damping: 30, stiffness: 200 }}
             />
           );
         })}
@@ -106,9 +115,9 @@ export function ContactPanel({ setIsHovering, smoothScrollX, maxScroll, ww }: Co
                     animate={{
                       opacity: isHovered ? 1 : 0,
                       y: isHovered ? 0 : 20,
-                      scale: isHovered ? 1 : 0.95
+                      scale: isHovered ? 1 : 0.95,
                     }}
-                    transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 25 }}
                   >
                     <span className="text-[#111] font-['Inter'] text-xs md:text-sm tracking-[2px] opacity-60 uppercase whitespace-nowrap">
                       {group.meaning}
@@ -119,19 +128,29 @@ export function ContactPanel({ setIsHovering, smoothScrollX, maxScroll, ww }: Co
                 {/* Main Letters (Drops down when hovered) */}
                 <motion.div
                   className="flex cursor-pointer pointer-events-auto relative z-10"
-                  onMouseEnter={() => { if (!isSpace) { setHoveredIndex(i); setIsHovering(true); } }}
-                  onMouseLeave={() => { if (!isSpace) { setHoveredIndex(null); setIsHovering(false); } }}
+                  onMouseEnter={() => {
+                    if (!isSpace) {
+                      setHoveredIndex(i);
+                      setIsHovering(true);
+                    }
+                  }}
+                  onMouseLeave={() => {
+                    if (!isSpace) {
+                      setHoveredIndex(null);
+                      setIsHovering(false);
+                    }
+                  }}
                   animate={{
                     y: isHovered && !isSpace ? '10vw' : 0,
                   }}
-                  transition={{ type: "spring", stiffness: 200, damping: 30 }}
+                  transition={{ type: 'spring', stiffness: 200, damping: 30 }}
                 >
                   {group.chars.map((char, charIdx) => (
                     <span
                       key={charIdx}
                       className={cn(
-                        "text-[12vw] md:text-[14vw] leading-[1]",
-                        isSpace ? "w-[4vw]" : "mx-[0.2vw]"
+                        'text-[12vw] md:text-[14vw] leading-[1]',
+                        isSpace ? 'w-[4vw]' : 'mx-[0.2vw]',
                       )}
                       style={{
                         fontFamily: '"Playfair Display", serif',
@@ -158,24 +177,52 @@ export function ContactPanel({ setIsHovering, smoothScrollX, maxScroll, ww }: Co
         <div className="flex gap-16 md:gap-32 items-start">
           {/* SAY HI */}
           <div className="flex flex-col gap-2">
-            <span className="text-[#111] font-['Inter'] text-[10px] md:text-xs tracking-[1px] opacity-50 uppercase">SAY HI!</span>
-            <a href={`mailto:${settings.contactEmail}`} className="text-[#111] font-['Inter'] text-[10px] md:text-sm font-medium tracking-[1px] uppercase pointer-events-auto hover:text-theme-primary transition-colors">{settings.contactEmail}</a>
+            <span className="text-[#111] font-['Inter'] text-[10px] md:text-xs tracking-[1px] opacity-50 uppercase">
+              SAY HI!
+            </span>
+            <a
+              href="https://mail.google.com/mail/u/0/?fs=1&tf=cm&source=mailto&to=dwookliim@gmail.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#111] font-['Inter'] text-[10px] md:text-sm font-medium tracking-[1px] uppercase pointer-events-auto hover:text-theme-primary transition-colors"
+            >
+              {settings.contactEmail}
+            </a>
           </div>
 
           {/* FOLLOW US */}
           <div className="hidden md:flex flex-col gap-2">
-            <span className="text-[#111] font-['Inter'] text-[10px] md:text-xs tracking-[1px] opacity-50 uppercase">FOLLOW ME:</span>
+            <span className="text-[#111] font-['Inter'] text-[10px] md:text-xs tracking-[1px] opacity-50 uppercase">
+              FOLLOW ME:
+            </span>
             <div className="flex gap-4 lg:gap-6 text-[#111] font-['Inter'] text-[10px] md:text-sm font-medium tracking-[1px] uppercase pointer-events-auto">
-              <a href="#" className="hover:text-theme-primary transition-colors">INSTAGRAM</a>
-              <a href="#" className="hover:text-theme-primary transition-colors">KAKAOTALK</a>
-              <a href="#" className="hover:text-theme-primary transition-colors">GITHUB</a>
+              <a
+                href="#"
+                className="hover:text-theme-primary transition-colors"
+              >
+                INSTAGRAM
+              </a>
+              <a
+                href="#"
+                className="hover:text-theme-primary transition-colors"
+              >
+                KAKAOTALK
+              </a>
+              <a
+                href="https://github.com/Dongwook-Lim"
+                className="hover:text-theme-primary transition-colors"
+              >
+                GITHUB
+              </a>
             </div>
           </div>
         </div>
 
         {/* COPYRIGHT */}
         <div className="flex flex-col gap-2 text-right md:text-left">
-          <span className="text-[#111] font-['Inter'] text-[10px] md:text-xs tracking-[1px] opacity-50 uppercase">COPYRIGHT:</span>
+          <span className="text-[#111] font-['Inter'] text-[10px] md:text-xs tracking-[1px] opacity-50 uppercase">
+            COPYRIGHT:
+          </span>
           <span
             className="text-[#111] font-['Inter'] text-[10px] md:text-sm font-medium tracking-[1px] uppercase pointer-events-auto whitespace-nowrap"
             onClick={() => navigate('/admin')}

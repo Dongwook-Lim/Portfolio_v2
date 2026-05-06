@@ -73,11 +73,11 @@ function LoadingWave({ isActive }: { isActive: boolean }) {
 export function Gallery() {
   const [isHovering, setIsHovering] = useState(false);
   const [activeDetail, setActiveDetail] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isIntroLoading, setIsIntroLoading] = useState(true);
   const [maxScroll, setMaxScroll] = useState(0);
   const [currentSlide, setCurrentSlide] = useState(1);
-  const { settings } = useAdmin();
-  const galleryData = settings.galleryData;
+  const { settings, isLoading: isAdminLoading } = useAdmin();
+  const galleryData = isAdminLoading ? [] : settings.galleryData;
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -112,7 +112,7 @@ export function Gallery() {
       window.removeEventListener('resize', updateMaxScroll);
       clearTimeout(t);
     };
-  }, []);
+  }, [galleryData.length, isAdminLoading]);
 
   // Wheel and drag handling
   useEffect(() => {
@@ -205,12 +205,13 @@ export function Gallery() {
 
   // Loading sequence
   useEffect(() => {
-    const t = setTimeout(() => setIsLoading(false), 1200);
+    const t = setTimeout(() => setIsIntroLoading(false), 1200);
     return () => clearTimeout(t);
   }, []);
 
   // Update progress indicator
   useMotionValueEvent(smoothScrollX, "change", (latest) => {
+    if (isAdminLoading || galleryData.length === 0) return;
     if (maxScroll > 0) {
       const ww = typeof window !== 'undefined' ? window.innerWidth : 1000;
       // The first gallery item is perfectly centered when scroll reaches 400vw.
@@ -241,9 +242,9 @@ export function Gallery() {
       {/* Loading Overlay */}
       <div className={cn(
         "fixed inset-0 bg-[#0c0c0c] z-[9999] flex items-center justify-center transition-opacity duration-700 pointer-events-none",
-        isLoading ? "opacity-100" : "opacity-0"
+        (isIntroLoading || isAdminLoading) ? "opacity-100" : "opacity-0"
       )}>
-        <LoadingWave isActive={isLoading} />
+        <LoadingWave isActive={isIntroLoading || isAdminLoading} />
       </div>
 
       {/* Progress Indicator */}
