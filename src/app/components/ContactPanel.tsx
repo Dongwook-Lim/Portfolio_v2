@@ -4,16 +4,19 @@ import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { useNavigate } from 'react-router';
 import { useAdmin } from '../context/AdminContext';
+import contactMe1Img from '../../imports/contact_me_1.jpg';
+import contactMe2Img from '../../imports/contact_me_2.jpg';
+import contactMe3Img from '../../imports/contact_me_3.jpeg';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
 const wordGroups = [
-  { chars: ['C', 'O', 'N'], img: 'https://images.unsplash.com/photo-1526906198213-3fdd3e9f94f7?q=80&w=800', meaning: '= TOGETHER' },
-  { chars: ['T', 'A', 'C', 'T'], img: 'https://images.unsplash.com/photo-1774658554382-5b1216bdacb3?q=80&w=800', meaning: '= TOUCH (YOUR PROJECT)' },
+  { chars: ['C', 'O', 'N'], img: contactMe1Img, meaning: '= TOGETHER' },
+  { chars: ['T', 'A', 'C', 'T'], img: contactMe2Img, meaning: '= TOUCH (YOUR PROJECT)' },
   { chars: ['\u00A0'], img: '' },
-  { chars: ['M', 'E'], img: 'https://images.unsplash.com/photo-1771515220905-ba0784fb7522?q=80&w=800', meaning: '= (WITH) LIMDONGWOOK' },
+  { chars: ['M', 'E'], img: contactMe3Img, meaning: '= (WITH) LIMDONGWOOK' },
 ];
 
 interface ContactPanelProps {
@@ -48,7 +51,7 @@ export function ContactPanel({ setIsHovering, smoothScrollX, maxScroll, ww }: Co
   });
 
   return (
-    <section 
+    <section
       ref={containerRef}
       className="w-[100vw] h-full shrink-0 bg-[#e5e5e5] flex flex-col items-center justify-start relative overflow-hidden z-40 ring-2 ring-[#e5e5e5]"
       onMouseMove={handleMouseMove}
@@ -63,17 +66,20 @@ export function ContactPanel({ setIsHovering, smoothScrollX, maxScroll, ww }: Co
               key={i}
               src={group.img}
               alt=""
-              className="absolute bottom-[2vh] md:bottom-[5vh] left-0 w-[40vw] md:w-[25vw] aspect-[4/3] object-cover rounded-sm shadow-[0_30px_60px_rgba(0,0,0,0.3)] origin-bottom"
-              style={{ 
-                x: mouseX, 
+              className={cn(
+                "absolute bottom-[2vh] md:bottom-[10vh] left-0 h-auto rounded-sm shadow-[0_30px_60px_rgba(0,0,0,0.3)] origin-bottom",
+                i === 3 ? "w-[30vw] md:w-[21vw]" : "w-[40vw] md:w-[30vw]"
+              )}
+              style={{
+                x: mouseX,
                 translateX: '-50%',
               }}
               initial={{ scale: 0.8, opacity: 0, y: 50 }}
-              animate={{ 
+              animate={{
                 scale: isHovered ? 1 : 0.8,
                 opacity: isHovered ? 1 : 0,
                 y: isHovered ? 0 : 50,
-                rotate: isHovered ? (i % 2 === 0 ? 3 : -3) : 0 
+                rotate: isHovered ? (i % 2 === 0 ? 3 : -3) : 0
               }}
               transition={{ type: "spring", damping: 30, stiffness: 200 }}
             />
@@ -82,7 +88,7 @@ export function ContactPanel({ setIsHovering, smoothScrollX, maxScroll, ww }: Co
       </div>
 
       {/* Typography */}
-      <motion.div 
+      <motion.div
         className="relative z-20 flex items-center justify-center w-full pt-[16vh] md:pt-[20vh] pointer-events-none"
         style={{ x: textX }}
       >
@@ -97,8 +103,8 @@ export function ContactPanel({ setIsHovering, smoothScrollX, maxScroll, ww }: Co
                   <motion.div
                     className="absolute inset-0 flex items-center justify-center pointer-events-none"
                     initial={{ opacity: 0, y: 20 }}
-                    animate={{ 
-                      opacity: isHovered ? 1 : 0, 
+                    animate={{
+                      opacity: isHovered ? 1 : 0,
                       y: isHovered ? 0 : 20,
                       scale: isHovered ? 1 : 0.95
                     }}
@@ -143,7 +149,7 @@ export function ContactPanel({ setIsHovering, smoothScrollX, maxScroll, ww }: Co
       </motion.div>
 
       {/* Header / Contact Details */}
-      <motion.div 
+      <motion.div
         className="absolute top-8 left-8 right-8 md:top-12 md:left-12 md:right-12 z-20 flex justify-between items-start pointer-events-none"
         initial={{ opacity: 0, y: -20 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -155,7 +161,7 @@ export function ContactPanel({ setIsHovering, smoothScrollX, maxScroll, ww }: Co
             <span className="text-[#111] font-['Inter'] text-[10px] md:text-xs tracking-[1px] opacity-50 uppercase">SAY HI!</span>
             <a href={`mailto:${settings.contactEmail}`} className="text-[#111] font-['Inter'] text-[10px] md:text-sm font-medium tracking-[1px] uppercase pointer-events-auto hover:text-theme-primary transition-colors">{settings.contactEmail}</a>
           </div>
-          
+
           {/* FOLLOW US */}
           <div className="hidden md:flex flex-col gap-2">
             <span className="text-[#111] font-['Inter'] text-[10px] md:text-xs tracking-[1px] opacity-50 uppercase">FOLLOW ME:</span>
@@ -170,8 +176,8 @@ export function ContactPanel({ setIsHovering, smoothScrollX, maxScroll, ww }: Co
         {/* COPYRIGHT */}
         <div className="flex flex-col gap-2 text-right md:text-left">
           <span className="text-[#111] font-['Inter'] text-[10px] md:text-xs tracking-[1px] opacity-50 uppercase">COPYRIGHT:</span>
-          <span 
-            className="text-[#111] font-['Inter'] text-[10px] md:text-sm font-medium tracking-[1px] uppercase pointer-events-auto whitespace-nowrap cursor-pointer hover:text-theme-primary transition-colors"
+          <span
+            className="text-[#111] font-['Inter'] text-[10px] md:text-sm font-medium tracking-[1px] uppercase pointer-events-auto whitespace-nowrap"
             onClick={() => navigate('/admin')}
           >
             {settings.contactCopyright}
