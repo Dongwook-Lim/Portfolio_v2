@@ -131,6 +131,8 @@ export function Gallery() {
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
       if (activeDetail) {
+        // 상세 오버레이가 열린 동안에는 브라우저 기본 세로 스크롤을 항상 차단
+        e.preventDefault();
         // 상세 페이지가 열려있을 때 휠(스크롤) 감지 시 홈으로 이동
         if (Math.abs(e.deltaY) > 5 || Math.abs(e.deltaX) > 5) {
           setActiveDetail(null);
