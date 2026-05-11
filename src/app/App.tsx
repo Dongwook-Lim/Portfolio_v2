@@ -401,8 +401,8 @@ export function Gallery() {
         }}
       >
         {/* Large BG Text (Staggered elegant entry) */}
-        <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none z-0 mix-blend-multiply">
-          <div className="w-[120vw] text-center leading-[0.8] font-['Anton'] uppercase text-theme-primary opacity-30 flex flex-wrap justify-center content-center select-none">
+        <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none z-0">
+          <div className="w-[120vw] text-center leading-[0.8] font-['Anton'] uppercase text-theme-primary flex flex-wrap justify-center content-center select-none">
             {activeDetail?.title.split(' ').map((word: string, i: number) => (
               <div
                 key={i}
