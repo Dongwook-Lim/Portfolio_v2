@@ -1,5 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, useMotionValue, useSpring, useVelocity, useTransform, useMotionValueEvent } from 'motion/react';
+import {
+  motion,
+  useMotionValue,
+  useSpring,
+  useVelocity,
+  useTransform,
+  useMotionValueEvent,
+} from 'motion/react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { GalleryItem } from './components/GalleryItem';
@@ -44,8 +51,8 @@ function LoadingWave({ isActive }: { isActive: boolean }) {
     <div className="flex gap-[8px] items-center justify-center h-[60px]">
       {Array.from({ length: 25 }).map((_, i) => {
         const distance = Math.abs(i - activeIndex);
-        const curveFactor = Math.max(0, 1 - (distance / 5));
-        const height = 16 + (curveFactor * 24);
+        const curveFactor = Math.max(0, 1 - distance / 5);
+        const height = 16 + curveFactor * 24;
         const yOffset = (1 - curveFactor) * 12;
 
         // 현재 위치에서 가장 가까운 단 1개의 바를 찾아서 색상 부여
@@ -55,13 +62,15 @@ function LoadingWave({ isActive }: { isActive: boolean }) {
           <div
             key={i}
             className={cn(
-              "w-[1.5px] shrink-0 rounded-full transition-all duration-[400ms] ease-out",
-              isCenter ? "bg-theme-primary shadow-[0_0_10px_var(--theme-primary)] z-10" : "bg-white"
+              'w-[1.5px] shrink-0 rounded-full transition-all duration-[400ms] ease-out',
+              isCenter
+                ? 'bg-theme-primary shadow-[0_0_10px_var(--theme-primary)] z-10'
+                : 'bg-white',
             )}
             style={{
               height: `${height}px`,
               transform: `translateY(${yOffset}px)`,
-              opacity: Math.max(0.15, 1 - distance * 0.15)
+              opacity: Math.max(0.15, 1 - distance * 0.15),
             }}
           />
         );
@@ -89,14 +98,18 @@ export function Gallery() {
   const scrollX = useMotionValue(0);
   const smoothScrollX = useSpring(scrollX, { damping: 50, stiffness: 400 });
   const scrollVelocity = useVelocity(smoothScrollX);
-  const smoothVelocity = useSpring(scrollVelocity, { damping: 50, stiffness: 400 });
+  const smoothVelocity = useSpring(scrollVelocity, {
+    damping: 50,
+    stiffness: 400,
+  });
   const targetScrollRef = useRef(0);
 
   // Measure max scrollable distance
   useEffect(() => {
     const updateMaxScroll = () => {
       if (containerRef.current) {
-        const firstChild = containerRef.current.firstElementChild as HTMLElement;
+        const firstChild = containerRef.current
+          .firstElementChild as HTMLElement;
         const lastChild = containerRef.current.lastElementChild as HTMLElement;
         if (firstChild && lastChild) {
           const totalWidth = lastChild.offsetLeft - firstChild.offsetLeft;
@@ -129,7 +142,10 @@ export function Gallery() {
       e.preventDefault();
 
       targetScrollRef.current += e.deltaY * 1.5 + e.deltaX * 1.5;
-      targetScrollRef.current = Math.max(0, Math.min(targetScrollRef.current, maxScroll));
+      targetScrollRef.current = Math.max(
+        0,
+        Math.min(targetScrollRef.current, maxScroll),
+      );
       scrollX.set(targetScrollRef.current);
     };
 
@@ -166,7 +182,10 @@ export function Gallery() {
 
       const diff = startX - currentX;
       targetScrollRef.current += diff * 2.0;
-      targetScrollRef.current = Math.max(0, Math.min(targetScrollRef.current, maxScroll));
+      targetScrollRef.current = Math.max(
+        0,
+        Math.min(targetScrollRef.current, maxScroll),
+      );
       scrollX.set(targetScrollRef.current);
       startX = currentX;
     };
@@ -210,7 +229,7 @@ export function Gallery() {
   }, []);
 
   // Update progress indicator
-  useMotionValueEvent(smoothScrollX, "change", (latest) => {
+  useMotionValueEvent(smoothScrollX, 'change', (latest) => {
     if (isAdminLoading || galleryData.length === 0) return;
     if (maxScroll > 0) {
       const ww = typeof window !== 'undefined' ? window.innerWidth : 1000;
@@ -223,7 +242,10 @@ export function Gallery() {
         setCurrentSlide(1);
       } else {
         const galleryScrollLength = Math.max(1, galleryEnd - galleryStart);
-        const pct = Math.max(0, Math.min(1, (latest - galleryStart) / galleryScrollLength));
+        const pct = Math.max(
+          0,
+          Math.min(1, (latest - galleryStart) / galleryScrollLength),
+        );
         const index = Math.round(pct * (galleryData.length - 1));
         setCurrentSlide(Math.min(Math.max(1, index + 1), galleryData.length));
       }
@@ -238,12 +260,13 @@ export function Gallery() {
 
   return (
     <div className="w-full h-screen bg-[#0c0c0c] text-[#f0f0f0] font-['Inter'] overflow-hidden overscroll-none selection:bg-[#d4af37] selection:text-[#0c0c0c] relative">
-
       {/* Loading Overlay */}
-      <div className={cn(
-        "fixed inset-0 bg-[#0c0c0c] z-[9999] flex items-center justify-center transition-opacity duration-700 pointer-events-none",
-        (isIntroLoading || isAdminLoading) ? "opacity-100" : "opacity-0"
-      )}>
+      <div
+        className={cn(
+          'fixed inset-0 bg-[#0c0c0c] z-[9999] flex items-center justify-center transition-opacity duration-700 pointer-events-none',
+          isIntroLoading || isAdminLoading ? 'opacity-100' : 'opacity-0',
+        )}
+      >
         <LoadingWave isActive={isIntroLoading || isAdminLoading} />
       </div>
 
@@ -253,7 +276,8 @@ export function Gallery() {
           className="flex gap-[8px] items-center justify-center h-[60px]"
           style={{
             opacity: useTransform(smoothScrollX, (v) => {
-              const ww = typeof window !== 'undefined' ? window.innerWidth : 1000;
+              const ww =
+                typeof window !== 'undefined' ? window.innerWidth : 1000;
               if (maxScroll <= 0) return 0;
               const inStart = ww * 3.6;
               const inEnd = ww * 4.1;
@@ -261,22 +285,27 @@ export function Gallery() {
               const outEnd = maxScroll - ww * 0.8;
 
               if (v < inStart) return 0;
-              if (v >= inStart && v < inEnd) return (v - inStart) / (inEnd - inStart);
+              if (v >= inStart && v < inEnd)
+                return (v - inStart) / (inEnd - inStart);
               if (v >= inEnd && v < outStart) return 1;
-              if (v >= outStart && v < outEnd) return 1 - (v - outStart) / (outEnd - outStart);
+              if (v >= outStart && v < outEnd)
+                return 1 - (v - outStart) / (outEnd - outStart);
               return 0;
-            })
+            }),
           }}
         >
           {Array.from({ length: 25 }).map((_, i) => {
             const totalBars = 25;
             // 슬라이드 개수와 무관하게 25개의 바 위를 부드럽게 이동하도록 위치 매핑
-            const activeIndex = Math.round(((currentSlide - 1) / Math.max(1, galleryData.length - 1)) * (totalBars - 1));
+            const activeIndex = Math.round(
+              ((currentSlide - 1) / Math.max(1, galleryData.length - 1)) *
+                (totalBars - 1),
+            );
             const distance = Math.abs(i - activeIndex);
 
             // 곡선이 끊기지 않게 영향을 받는 범위 설정
-            const curveFactor = Math.max(0, 1 - (distance / 5));
-            const height = 16 + (curveFactor * 24); // 최소 16px ~ 최대 40px
+            const curveFactor = Math.max(0, 1 - distance / 5);
+            const height = 16 + curveFactor * 24; // 최소 16px ~ 최대 40px
             const yOffset = (1 - curveFactor) * 12; // 중심은 0, 멀어질수록 아래(또는 위)로 이동하여 아치형태 생성
             const isCenter = distance === 0;
 
@@ -284,13 +313,15 @@ export function Gallery() {
               <div
                 key={i}
                 className={cn(
-                  "w-[1.5px] shrink-0 transition-all duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] rounded-full",
-                  isCenter ? "bg-theme-primary shadow-[0_0_10px_var(--theme-primary)] z-10" : "bg-white"
+                  'w-[1.5px] shrink-0 transition-all duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] rounded-full',
+                  isCenter
+                    ? 'bg-theme-primary shadow-[0_0_10px_var(--theme-primary)] z-10'
+                    : 'bg-white',
                 )}
                 style={{
                   height: `${height}px`,
                   transform: `translateY(${yOffset}px)`,
-                  opacity: Math.max(0.15, 1 - distance * 0.15)
+                  opacity: Math.max(0.15, 1 - distance * 0.15),
                 }}
               />
             );
@@ -303,10 +334,13 @@ export function Gallery() {
         <motion.div
           ref={containerRef}
           className="flex items-center h-full pointer-events-auto"
-          style={{ x: useTransform(smoothScrollX, v => -v) }}
+          style={{ x: useTransform(smoothScrollX, (v) => -v) }}
         >
           {/* 1. Typography Principles Landing Pages */}
-          <LandingPages smoothScrollX={smoothScrollX} setIsHovering={setIsHovering} />
+          <LandingPages
+            smoothScrollX={smoothScrollX}
+            setIsHovering={setIsHovering}
+          />
 
           {/* 2. Transition Spacer (allows the first gallery item to be centered) */}
           <div className="w-[30vw] shrink-0 bg-[#0c0c0c] h-full" />
@@ -340,25 +374,32 @@ export function Gallery() {
       </main>
 
       {/* Mobile drag hint */}
-      <div className={cn(
-        "fixed bottom-12 left-1/2 -translate-x-1/2 text-[10px] tracking-[3px] opacity-50 md:hidden pointer-events-none font-['Anton'] uppercase text-[#f0f0f0] transition-opacity duration-500",
-        activeDetail ? "opacity-0" : "opacity-50"
-      )}>
+      <div
+        className={cn(
+          "fixed bottom-12 left-1/2 -translate-x-1/2 text-[10px] tracking-[3px] opacity-50 md:hidden pointer-events-none font-['Anton'] uppercase text-[#f0f0f0] transition-opacity duration-500",
+          activeDetail ? 'opacity-0' : 'opacity-50',
+        )}
+      >
         DRAG TO EXPLORE
       </div>
 
       {/* Detailed Page Overlay (Image 1 Style) */}
       <div
         className={cn(
-          "fixed inset-0 z-50 flex items-center justify-center transition-all duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)]",
-          activeDetail ? "opacity-100 pointer-events-auto scale-100" : "opacity-0 pointer-events-none scale-105"
+          'fixed inset-0 z-50 flex items-center justify-center transition-all duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)]',
+          activeDetail
+            ? 'opacity-100 pointer-events-auto scale-100'
+            : 'opacity-0 pointer-events-none scale-105',
         )}
         style={{
           backgroundColor: activeDetail?.bgColor || '#fcfcfc',
-          ...(activeDetail?.textColor ? { '--theme-primary': activeDetail.textColor } as React.CSSProperties : {})
+          ...(activeDetail?.textColor
+            ? ({
+                '--theme-primary': activeDetail.textColor,
+              } as React.CSSProperties)
+            : {}),
         }}
       >
-
         {/* Large BG Text (Staggered elegant entry) */}
         <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none z-0 mix-blend-multiply">
           <div className="w-[120vw] text-center leading-[0.8] font-['Anton'] uppercase text-theme-primary opacity-30 flex flex-wrap justify-center content-center select-none">
@@ -366,10 +407,14 @@ export function Gallery() {
               <div
                 key={i}
                 className={cn(
-                  "mx-[1vw] transition-all duration-[1500ms] ease-[cubic-bezier(0.22,1,0.36,1)] transform-gpu",
-                  activeDetail ? "translate-y-0 opacity-100 blur-0 scale-y-[1.2]" : "translate-y-[20vh] opacity-0 blur-md scale-y-[1.5]"
+                  'mx-[1vw] transition-all duration-[1500ms] ease-[cubic-bezier(0.22,1,0.36,1)] transform-gpu',
+                  activeDetail
+                    ? 'translate-y-0 opacity-100 blur-0 scale-y-[1.2]'
+                    : 'translate-y-[20vh] opacity-0 blur-md scale-y-[1.5]',
                 )}
-                style={{ transitionDelay: activeDetail ? `${200 + i * 150}ms` : '0ms' }}
+                style={{
+                  transitionDelay: activeDetail ? `${200 + i * 150}ms` : '0ms',
+                }}
               >
                 <span className="text-[20vw] md:text-[18vw] block">{word}</span>
               </div>
@@ -378,19 +423,23 @@ export function Gallery() {
         </div>
 
         {/* Center Image (Cinematic elegant float) */}
-        <div className={cn(
-          "relative z-10 max-w-[85vw] md:max-w-[60vw] max-h-[70vh] md:max-h-[75vh] shadow-[0_40px_80px_rgba(0,0,0,0.4)] transition-all duration-[1500ms] ease-[cubic-bezier(0.22,1,0.36,1)]",
-          activeDetail ? "translate-y-0 opacity-100 scale-100 blur-0" : "translate-y-[15vh] opacity-0 scale-90 blur-xl"
-        )}
-          style={{ transitionDelay: activeDetail ? '400ms' : '0ms' }}>
+        <div
+          className={cn(
+            'relative z-10 max-w-[85vw] md:max-w-[60vw] max-h-[70vh] md:max-h-[75vh] shadow-[0_40px_80px_rgba(0,0,0,0.4)] transition-all duration-[1500ms] ease-[cubic-bezier(0.22,1,0.36,1)]',
+            activeDetail
+              ? 'translate-y-0 opacity-100 scale-100 blur-0'
+              : 'translate-y-[15vh] opacity-0 scale-90 blur-xl',
+          )}
+          style={{ transitionDelay: activeDetail ? '800ms' : '0ms' }}
+        >
           {activeDetail && (
             <div className="overflow-hidden bg-[#e0e0e0] flex items-center justify-center">
               <img
                 src={activeDetail.img}
                 alt={activeDetail.title}
                 className={cn(
-                  "max-w-[85vw] md:max-w-[50vw] max-h-[70vh] md:max-h-[75vh] w-auto h-auto object-contain transition-transform duration-[2000ms] ease-[cubic-bezier(0.22,1,0.36,1)]",
-                  activeDetail ? "scale-100" : "scale-125"
+                  'max-w-[85vw] md:max-w-[50vw] max-h-[70vh] md:max-h-[75vh] w-auto h-auto object-contain transition-transform duration-[2000ms] ease-[cubic-bezier(0.22,1,0.36,1)]',
+                  activeDetail ? 'scale-100' : 'scale-125',
                 )}
                 style={{ transitionDelay: activeDetail ? '200ms' : '0ms' }}
               />
@@ -402,7 +451,9 @@ export function Gallery() {
         <div
           className={cn(
             "absolute top-8 left-8 md:top-12 md:left-12 text-theme-primary font-['Anton'] tracking-[4px] text-xl z-20 transition-all duration-[1000ms] ease-[cubic-bezier(0.22,1,0.36,1)]",
-            activeDetail ? "opacity-100 translate-y-0 blur-0" : "opacity-0 -translate-y-8 blur-md"
+            activeDetail
+              ? 'opacity-100 translate-y-0 blur-0'
+              : 'opacity-0 -translate-y-8 blur-md',
           )}
           style={{ transitionDelay: activeDetail ? '800ms' : '0ms' }}
         >
@@ -415,8 +466,10 @@ export function Gallery() {
           onMouseEnter={() => setIsHovering(true)}
           onMouseLeave={() => setIsHovering(false)}
           className={cn(
-            "absolute top-8 right-8 md:top-12 md:right-12 z-30 text-[10px] md:text-xs tracking-[2px] text-theme-primary font-medium cursor-pointer transition-all duration-[1000ms] ease-[cubic-bezier(0.22,1,0.36,1)] group",
-            activeDetail ? "opacity-100 translate-y-0 blur-0" : "opacity-0 -translate-y-8 blur-md"
+            'absolute top-8 right-8 md:top-12 md:right-12 z-30 text-[10px] md:text-xs tracking-[2px] text-theme-primary font-medium cursor-pointer transition-all duration-[1000ms] ease-[cubic-bezier(0.22,1,0.36,1)] group',
+            activeDetail
+              ? 'opacity-100 translate-y-0 blur-0'
+              : 'opacity-0 -translate-y-8 blur-md',
           )}
           style={{ transitionDelay: activeDetail ? '900ms' : '0ms' }}
         >
@@ -427,31 +480,36 @@ export function Gallery() {
         {/* Detail Bottom Info Blocks */}
         <div
           className={cn(
-            "absolute bottom-8 left-8 md:bottom-12 md:left-12 z-20 text-[8px] md:text-[10px] tracking-[2px] text-theme-primary uppercase transition-all duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)]",
-            activeDetail ? "opacity-100 translate-y-0 blur-0" : "opacity-0 translate-y-12 blur-md"
+            'absolute bottom-8 left-8 md:bottom-12 md:left-12 z-20 text-[8px] md:text-[10px] tracking-[2px] text-theme-primary uppercase transition-all duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)]',
+            activeDetail
+              ? 'opacity-100 translate-y-0 blur-0'
+              : 'opacity-0 translate-y-12 blur-md',
           )}
           style={{ transitionDelay: activeDetail ? '1000ms' : '0ms' }}
         >
           <div className="grid grid-cols-[80px_1fr] md:grid-cols-[120px_1fr] gap-y-2">
-            <span className="opacity-60">TITLE</span><span className="font-medium">{activeDetail?.title}</span>
-            <span className="opacity-60">LOCATION</span><span className="font-medium">{activeDetail?.location}</span>
-            <span className="opacity-60">DATE</span><span className="font-medium">{activeDetail?.date || "2026"}</span>
+            <span className="opacity-60">TITLE</span>
+            <span className="font-medium">{activeDetail?.title}</span>
+            <span className="opacity-60">LOCATION</span>
+            <span className="font-medium">{activeDetail?.location}</span>
+            <span className="opacity-60">DATE</span>
+            <span className="font-medium">{activeDetail?.date || '2026'}</span>
           </div>
         </div>
 
         <div
           className={cn(
-            "absolute bottom-8 right-8 md:bottom-12 md:right-12 z-20 text-[8px] md:text-[10px] tracking-[2px] text-theme-primary uppercase transition-all duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)] text-right",
-            activeDetail ? "opacity-100 translate-y-0 blur-0" : "opacity-0 translate-y-12 blur-md"
+            'absolute bottom-8 right-8 md:bottom-12 md:right-12 z-20 text-[8px] md:text-[10px] tracking-[2px] text-theme-primary uppercase transition-all duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)] text-right',
+            activeDetail
+              ? 'opacity-100 translate-y-0 blur-0'
+              : 'opacity-0 translate-y-12 blur-md',
           )}
           style={{ transitionDelay: activeDetail ? '1100ms' : '0ms' }}
         >
           EXPLORE BEHIND-THE-SCENES OF <br />
           THE MAKING OF {activeDetail?.title}.
         </div>
-
       </div>
-
     </div>
   );
 }
