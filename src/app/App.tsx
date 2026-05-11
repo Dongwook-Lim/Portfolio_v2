@@ -82,6 +82,7 @@ function LoadingWave({ isActive }: { isActive: boolean }) {
 export function Gallery() {
   const [isHovering, setIsHovering] = useState(false);
   const [activeDetail, setActiveDetail] = useState<any>(null);
+  const [isDetailClosing, setIsDetailClosing] = useState(false);
   const [isIntroLoading, setIsIntroLoading] = useState(true);
   const [maxScroll, setMaxScroll] = useState(0);
   const [currentSlide, setCurrentSlide] = useState(1);
@@ -103,6 +104,22 @@ export function Gallery() {
     stiffness: 400,
   });
   const targetScrollRef = useRef(0);
+  const closeTimeoutRef = useRef<number | null>(null);
+  const DETAIL_CLOSE_DURATION_MS = 1200;
+  const isDetailOpen = !!activeDetail && !isDetailClosing;
+
+  const triggerCloseDetail = () => {
+    if (!activeDetail || isDetailClosing) return;
+    setIsDetailClosing(true);
+    if (closeTimeoutRef.current) {
+      window.clearTimeout(closeTimeoutRef.current);
+    }
+    closeTimeoutRef.current = window.setTimeout(() => {
+      setActiveDetail(null);
+      setIsDetailClosing(false);
+      closeTimeoutRef.current = null;
+    }, DETAIL_CLOSE_DURATION_MS);
+  };
 
   // Measure max scrollable distance
   useEffect(() => {
@@ -135,7 +152,7 @@ export function Gallery() {
         e.preventDefault();
         // 상세 페이지가 열려있을 때 휠(스크롤) 감지 시 홈으로 이동
         if (Math.abs(e.deltaY) > 5 || Math.abs(e.deltaX) > 5) {
-          setActiveDetail(null);
+          triggerCloseDetail();
         }
         return;
       }
@@ -176,7 +193,7 @@ export function Gallery() {
         const diffX = Math.abs(startX - currentX);
         const diffY = Math.abs(startY - currentY);
         if (diffX > 30 || diffY > 30) {
-          setActiveDetail(null);
+          triggerCloseDetail();
           isDragging = false;
         }
         return;
@@ -212,7 +229,7 @@ export function Gallery() {
       window.removeEventListener('touchmove', handleMove);
       window.removeEventListener('touchend', handleEnd);
     };
-  }, [activeDetail, maxScroll, scrollX]);
+  }, [activeDetail, isDetailClosing, maxScroll, scrollX]);
 
   // Mouse follow event
   useEffect(() => {
@@ -223,6 +240,14 @@ export function Gallery() {
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, [cursorX, cursorY]);
+
+  useEffect(() => {
+    return () => {
+      if (closeTimeoutRef.current) {
+        window.clearTimeout(closeTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Loading sequence
   useEffect(() => {
@@ -356,7 +381,14 @@ export function Gallery() {
                 index={index}
                 smoothScrollX={smoothScrollX}
                 smoothVelocity={smoothVelocity}
-                onOpenDetail={(d) => setActiveDetail(d)}
+                onOpenDetail={(d) => {
+                  if (closeTimeoutRef.current) {
+                    window.clearTimeout(closeTimeoutRef.current);
+                    closeTimeoutRef.current = null;
+                  }
+                  setIsDetailClosing(false);
+                  setActiveDetail(d);
+                }}
                 setIsHovering={setIsHovering}
               />
             ))}
@@ -390,11 +422,11 @@ export function Gallery() {
         className={cn(
           'fixed inset-0 z-50 flex items-center justify-center transition-all duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)]',
           activeDetail
-            ? 'opacity-100 pointer-events-auto scale-100'
+            ? 'opacity-100 scale-100'
             : 'opacity-0 pointer-events-none scale-105',
         )}
         style={{
-          backgroundColor: activeDetail?.bgColor || '#fcfcfc',
+          pointerEvents: isDetailOpen ? 'auto' : 'none',
           ...(activeDetail?.textColor
             ? ({
                 '--theme-primary': activeDetail.textColor,
@@ -402,20 +434,34 @@ export function Gallery() {
             : {}),
         }}
       >
+        <div
+          className={cn(
+            'absolute inset-0 z-0 transition-opacity ease-[cubic-bezier(0.22,1,0.36,1)]',
+            isDetailOpen ? 'opacity-100' : 'opacity-0',
+          )}
+          style={{
+            backgroundColor: activeDetail?.bgColor || '#fcfcfc',
+            transitionDuration: isDetailOpen ? '800ms' : '700ms',
+            transitionDelay: isDetailOpen ? '0ms' : '350ms',
+          }}
+        />
+
         {/* Large BG Text (Staggered elegant entry) */}
-        <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none z-0">
+        <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none z-[5]">
           <div className="w-[120vw] text-center leading-[0.8] font-['Anton'] uppercase text-theme-primary flex flex-wrap justify-center content-center select-none">
             {activeDetail?.title.split(' ').map((word: string, i: number) => (
               <div
                 key={i}
                 className={cn(
                   'mx-[1vw] transition-all duration-[1500ms] ease-[cubic-bezier(0.22,1,0.36,1)] transform-gpu',
-                  activeDetail
+                  isDetailOpen
                     ? 'translate-y-0 opacity-100 blur-0 scale-y-[1.2]'
                     : 'translate-y-[20vh] opacity-0 blur-md scale-y-[1.5]',
                 )}
                 style={{
-                  transitionDelay: activeDetail ? `${200 + i * 150}ms` : '0ms',
+                  transitionDelay: isDetailOpen
+                    ? `${200 + i * 150}ms`
+                    : `${500 - Math.min(i, 4) * 100}ms`,
                 }}
               >
                 <span className="text-[20vw] md:text-[18vw] block">{word}</span>
@@ -428,11 +474,14 @@ export function Gallery() {
         <div
           className={cn(
             'relative z-10 max-w-[85vw] md:max-w-[60vw] max-h-[70vh] md:max-h-[75vh] shadow-[0_40px_80px_rgba(0,0,0,0.4)] transition-all duration-[1500ms] ease-[cubic-bezier(0.22,1,0.36,1)]',
-            activeDetail
+            isDetailOpen
               ? 'translate-y-0 opacity-100 scale-100 blur-0'
               : 'translate-y-[15vh] opacity-0 scale-90 blur-xl',
           )}
-          style={{ transitionDelay: activeDetail ? '800ms' : '0ms' }}
+          style={{
+            transitionDelay: isDetailOpen ? '800ms' : '0ms',
+            transitionDuration: isDetailOpen ? '1500ms' : '850ms',
+          }}
         >
           {activeDetail && (
             <div className="overflow-hidden bg-[#e0e0e0] flex items-center justify-center">
@@ -441,9 +490,9 @@ export function Gallery() {
                 alt={activeDetail.title}
                 className={cn(
                   'max-w-[85vw] md:max-w-[50vw] max-h-[70vh] md:max-h-[75vh] w-auto h-auto object-contain transition-transform duration-[2000ms] ease-[cubic-bezier(0.22,1,0.36,1)]',
-                  activeDetail ? 'scale-100' : 'scale-125',
+                  isDetailOpen ? 'scale-100' : 'scale-125',
                 )}
-                style={{ transitionDelay: activeDetail ? '200ms' : '0ms' }}
+                style={{ transitionDelay: isDetailOpen ? '200ms' : '0ms' }}
               />
             </div>
           )}
@@ -453,27 +502,27 @@ export function Gallery() {
         <div
           className={cn(
             "absolute top-8 left-8 md:top-12 md:left-12 text-theme-primary font-['Anton'] tracking-[4px] text-xl z-20 transition-all duration-[1000ms] ease-[cubic-bezier(0.22,1,0.36,1)]",
-            activeDetail
+            isDetailOpen
               ? 'opacity-100 translate-y-0 blur-0'
               : 'opacity-0 -translate-y-8 blur-md',
           )}
-          style={{ transitionDelay: activeDetail ? '800ms' : '0ms' }}
+          style={{ transitionDelay: isDetailOpen ? '800ms' : '200ms' }}
         >
           LIMDONGWOOK
         </div>
 
         {/* Detail Close Button */}
         <button
-          onClick={() => setActiveDetail(null)}
+          onClick={triggerCloseDetail}
           onMouseEnter={() => setIsHovering(true)}
           onMouseLeave={() => setIsHovering(false)}
           className={cn(
             'absolute top-8 right-8 md:top-12 md:right-12 z-30 text-[10px] md:text-xs tracking-[2px] text-theme-primary font-medium cursor-pointer transition-all duration-[1000ms] ease-[cubic-bezier(0.22,1,0.36,1)] group',
-            activeDetail
+            isDetailOpen
               ? 'opacity-100 translate-y-0 blur-0'
               : 'opacity-0 -translate-y-8 blur-md',
           )}
-          style={{ transitionDelay: activeDetail ? '900ms' : '0ms' }}
+          style={{ transitionDelay: isDetailOpen ? '900ms' : '100ms' }}
         >
           CLOSE
           <div className="absolute -bottom-1 left-0 w-full h-[1px] bg-theme-primary scale-x-100 origin-right transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-x-0 group-hover:origin-left" />
@@ -483,11 +532,11 @@ export function Gallery() {
         <div
           className={cn(
             'absolute bottom-8 left-8 md:bottom-12 md:left-12 z-20 text-[8px] md:text-[10px] tracking-[2px] text-theme-primary uppercase transition-all duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)]',
-            activeDetail
+            isDetailOpen
               ? 'opacity-100 translate-y-0 blur-0'
               : 'opacity-0 translate-y-12 blur-md',
           )}
-          style={{ transitionDelay: activeDetail ? '1000ms' : '0ms' }}
+          style={{ transitionDelay: isDetailOpen ? '1000ms' : '50ms' }}
         >
           <div className="grid grid-cols-[80px_1fr] md:grid-cols-[120px_1fr] gap-y-2">
             <span className="opacity-60">TITLE</span>
@@ -502,11 +551,11 @@ export function Gallery() {
         <div
           className={cn(
             'absolute bottom-8 right-8 md:bottom-12 md:right-12 z-20 text-[8px] md:text-[10px] tracking-[2px] text-theme-primary uppercase transition-all duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)] text-right',
-            activeDetail
+            isDetailOpen
               ? 'opacity-100 translate-y-0 blur-0'
               : 'opacity-0 translate-y-12 blur-md',
           )}
-          style={{ transitionDelay: activeDetail ? '1100ms' : '0ms' }}
+          style={{ transitionDelay: isDetailOpen ? '1100ms' : '0ms' }}
         >
           EXPLORE BEHIND-THE-SCENES OF <br />
           THE MAKING OF {activeDetail?.title}.
