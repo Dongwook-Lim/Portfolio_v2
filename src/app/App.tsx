@@ -83,6 +83,7 @@ export function Gallery() {
   const [isHovering, setIsHovering] = useState(false);
   const [activeDetail, setActiveDetail] = useState<any>(null);
   const [isDetailClosing, setIsDetailClosing] = useState(false);
+  const [isDetailAnimating, setIsDetailAnimating] = useState(false);
   const [isIntroLoading, setIsIntroLoading] = useState(true);
   const [maxScroll, setMaxScroll] = useState(0);
   const [currentSlide, setCurrentSlide] = useState(1);
@@ -106,7 +107,18 @@ export function Gallery() {
   const targetScrollRef = useRef(0);
   const closeTimeoutRef = useRef<number | null>(null);
   const DETAIL_CLOSE_DURATION_MS = 1200;
-  const isDetailOpen = !!activeDetail && !isDetailClosing;
+
+  useEffect(() => {
+    if (activeDetail && !isDetailClosing) {
+      // 약간의 지연을 주어 DOM이 닫힌 상태로 마운트된 후 열림 상태로 전환되게 함 (초기 마운트 애니메이션 누락 방지)
+      const t = setTimeout(() => setIsDetailAnimating(true), 50);
+      return () => clearTimeout(t);
+    } else {
+      setIsDetailAnimating(false);
+    }
+  }, [activeDetail, isDetailClosing]);
+
+  const isDetailOpen = isDetailAnimating;
 
   const triggerCloseDetail = () => {
     if (!activeDetail || isDetailClosing) return;
@@ -326,7 +338,7 @@ export function Gallery() {
             // 슬라이드 개수와 무관하게 25개의 바 위를 부드럽게 이동하도록 위치 매핑
             const activeIndex = Math.round(
               ((currentSlide - 1) / Math.max(1, galleryData.length - 1)) *
-                (totalBars - 1),
+              (totalBars - 1),
             );
             const distance = Math.abs(i - activeIndex);
 
@@ -429,8 +441,8 @@ export function Gallery() {
           pointerEvents: isDetailOpen ? 'auto' : 'none',
           ...(activeDetail?.textColor
             ? ({
-                '--theme-primary': activeDetail.textColor,
-              } as React.CSSProperties)
+              '--theme-primary': activeDetail.textColor,
+            } as React.CSSProperties)
             : {}),
         }}
       >
