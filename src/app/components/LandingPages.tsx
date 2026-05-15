@@ -194,7 +194,7 @@ export function LandingPages({ smoothScrollX, setIsHovering }: LandingPagesProps
 
                 {/* Elements from Original Panel 2 (Positioned 0vw ~ 100vw) */}
                 <motion.div
-                    className="absolute left-[70vw] md:left-[75vw] top-[20%] md:top-[30%] w-[25vw] md:w-[15vw] z-30 font-['Inter'] text-[10px] md:text-xs leading-relaxed bg-white rounded-full p-4 md:p-8 aspect-square flex flex-col justify-center cursor-pointer shadow-[0_10px_30px_-5px_rgba(0,0,0,0.2)]"
+                    className="absolute left-[64vw] md:left-[75vw] top-[20%] md:top-[30%] size-[clamp(180px,40vw,240px)] md:size-[clamp(220px,20vw,300px)] lg:size-[clamp(190px,16vw,260px)] z-30 font-['Inter'] text-[10px] sm:text-[11px] md:text-xs leading-tight md:leading-relaxed text-center bg-white rounded-full px-7 py-8 md:p-8 flex flex-col justify-center cursor-pointer shadow-[0_10px_30px_-5px_rgba(0,0,0,0.2)]"
                     style={{ x: p2TextX }}
                     onMouseEnter={() => setIsHovering(true)}
                     onMouseLeave={() => setIsHovering(false)}
