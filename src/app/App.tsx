@@ -111,6 +111,8 @@ export function Gallery() {
   const closeTimeoutRef = useRef<number | null>(null);
   const detailSwitchTimeoutRef = useRef<number | null>(null);
   const detailChromeColorTimeoutRef = useRef<number | null>(null);
+  const imagePreloadCacheRef = useRef<Map<string, Promise<void>>>(new Map());
+  const openDetailRequestRef = useRef(0);
   const DETAIL_CLOSE_DURATION_MS = 1200;
   const activeDetailIndex = activeDetail
     ? galleryData.findIndex((item) => item.id === activeDetail.id)
@@ -137,8 +139,58 @@ export function Gallery() {
   const getDetailTextColor = (detail: GalleryItemData | null) =>
     detail?.textColor || settings.themeColor;
 
+  const preloadDetailImage = (detail: GalleryItemData) => {
+    const cached = imagePreloadCacheRef.current.get(detail.img);
+    if (cached) return cached;
+
+    const preload = new Promise<void>((resolve) => {
+      const img = new Image();
+      img.decoding = 'async';
+      img.onload = () => {
+        if (img.decode) {
+          img.decode().then(resolve).catch(resolve);
+          return;
+        }
+        resolve();
+      };
+      img.onerror = () => resolve();
+      img.src = detail.img;
+    });
+
+    imagePreloadCacheRef.current.set(detail.img, preload);
+    return preload;
+  };
+
+  const openDetail = (detail: GalleryItemData) => {
+    const requestId = openDetailRequestRef.current + 1;
+    openDetailRequestRef.current = requestId;
+
+    if (closeTimeoutRef.current) {
+      window.clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+    if (detailSwitchTimeoutRef.current) {
+      window.clearTimeout(detailSwitchTimeoutRef.current);
+      detailSwitchTimeoutRef.current = null;
+    }
+    if (detailChromeColorTimeoutRef.current) {
+      window.clearTimeout(detailChromeColorTimeoutRef.current);
+      detailChromeColorTimeoutRef.current = null;
+    }
+
+    setIsDetailClosing(false);
+    setIsDetailSwitching(false);
+    setDetailChromeColor(getDetailTextColor(detail));
+
+    preloadDetailImage(detail).finally(() => {
+      if (openDetailRequestRef.current !== requestId) return;
+      setActiveDetail(detail);
+    });
+  };
+
   const triggerCloseDetail = () => {
     if (!activeDetail || isDetailClosing) return;
+    openDetailRequestRef.current += 1;
     setIsDetailClosing(true);
     setIsDetailSwitching(false);
     if (closeTimeoutRef.current) {
@@ -163,6 +215,8 @@ export function Gallery() {
     if (activeDetailIndex < 0) return;
     const nextIndex = activeDetailIndex + direction;
     if (nextIndex < 0 || nextIndex >= galleryData.length) return;
+    const requestId = openDetailRequestRef.current + 1;
+    openDetailRequestRef.current = requestId;
 
     if (closeTimeoutRef.current) {
       window.clearTimeout(closeTimeoutRef.current);
@@ -177,12 +231,15 @@ export function Gallery() {
     }
     detailSwitchTimeoutRef.current = window.setTimeout(() => {
       const nextDetail = galleryData[nextIndex];
-      setActiveDetail(nextDetail);
-      detailChromeColorTimeoutRef.current = window.setTimeout(() => {
-        setDetailChromeColor(getDetailTextColor(nextDetail));
-        detailChromeColorTimeoutRef.current = null;
-      }, 250);
-      detailSwitchTimeoutRef.current = null;
+      preloadDetailImage(nextDetail).finally(() => {
+        if (openDetailRequestRef.current !== requestId) return;
+        setActiveDetail(nextDetail);
+        detailChromeColorTimeoutRef.current = window.setTimeout(() => {
+          setDetailChromeColor(getDetailTextColor(nextDetail));
+          detailChromeColorTimeoutRef.current = null;
+        }, 250);
+        detailSwitchTimeoutRef.current = null;
+      });
     }, 180);
   };
 
@@ -489,17 +546,7 @@ export function Gallery() {
                 smoothScrollX={smoothScrollX}
                 smoothVelocity={smoothVelocity}
                 onOpenDetail={(d) => {
-                  if (closeTimeoutRef.current) {
-                    window.clearTimeout(closeTimeoutRef.current);
-                    closeTimeoutRef.current = null;
-                  }
-                  if (detailChromeColorTimeoutRef.current) {
-                    window.clearTimeout(detailChromeColorTimeoutRef.current);
-                    detailChromeColorTimeoutRef.current = null;
-                  }
-                  setIsDetailClosing(false);
-                  setDetailChromeColor(getDetailTextColor(d));
-                  setActiveDetail(d);
+                  openDetail(d);
                 }}
                 setIsHovering={setIsHovering}
               />
@@ -576,10 +623,10 @@ export function Gallery() {
         <div
           key={`image-${activeDetail?.id}`}
           className={cn(
-            'relative z-10 max-w-[85vw] md:max-w-[60vw] max-h-[70vh] md:max-h-[75vh] shadow-[0_40px_80px_rgba(0,0,0,0.4)] transition-all duration-[1500ms] ease-[cubic-bezier(0.22,1,0.36,1)]',
+            'relative z-10 max-w-[85vw] md:max-w-[60vw] max-h-[70vh] md:max-h-[75vh] shadow-[0_40px_80px_rgba(0,0,0,0.4)] transition-all duration-[1500ms] ease-[cubic-bezier(0.22,1,0.36,1)] transform-gpu will-change-transform',
             isDetailOpen
               ? 'translate-y-0 opacity-100 scale-100 blur-0'
-              : 'translate-y-[15vh] opacity-0 scale-90 blur-xl',
+              : 'translate-y-[15vh] opacity-0 scale-90 blur-0',
           )}
           style={{
             transitionDelay: isDetailOpen ? '800ms' : '0ms',
@@ -592,9 +639,10 @@ export function Gallery() {
                 src={activeDetail.img}
                 alt={activeDetail.title}
                 className={cn(
-                  'max-w-[85vw] md:max-w-[50vw] max-h-[70vh] md:max-h-[75vh] w-auto h-auto object-contain transition-transform duration-[2000ms] ease-[cubic-bezier(0.22,1,0.36,1)]',
+                  'max-w-[85vw] md:max-w-[50vw] max-h-[70vh] md:max-h-[75vh] w-auto h-auto object-contain transition-transform duration-[2000ms] ease-[cubic-bezier(0.22,1,0.36,1)] transform-gpu will-change-transform',
                   isDetailOpen ? 'scale-100' : 'scale-125',
                 )}
+                decoding="async"
                 style={{ transitionDelay: isDetailOpen ? '200ms' : '0ms' }}
               />
             </div>
