@@ -12,9 +12,10 @@ import { twMerge } from 'tailwind-merge';
 import { GalleryItem } from './components/GalleryItem';
 import { LandingPages } from './components/LandingPages';
 import { ContactPanel } from './components/ContactPanel';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { RouterProvider } from 'react-router';
 import { router } from './routes';
-import { AdminProvider, useAdmin } from './context/AdminContext';
+import { AdminProvider, useAdmin, type GalleryItemData } from './context/AdminContext';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -81,7 +82,7 @@ function LoadingWave({ isActive }: { isActive: boolean }) {
 
 export function Gallery() {
   const [isHovering, setIsHovering] = useState(false);
-  const [activeDetail, setActiveDetail] = useState<any>(null);
+  const [activeDetail, setActiveDetail] = useState<GalleryItemData | null>(null);
   const [isDetailClosing, setIsDetailClosing] = useState(false);
   const [isDetailAnimating, setIsDetailAnimating] = useState(false);
   const [isIntroLoading, setIsIntroLoading] = useState(true);
@@ -107,6 +108,12 @@ export function Gallery() {
   const targetScrollRef = useRef(0);
   const closeTimeoutRef = useRef<number | null>(null);
   const DETAIL_CLOSE_DURATION_MS = 1200;
+  const activeDetailIndex = activeDetail
+    ? galleryData.findIndex((item) => item.id === activeDetail.id)
+    : -1;
+  const canShowPreviousDetail = activeDetailIndex > 0;
+  const canShowNextDetail =
+    activeDetailIndex >= 0 && activeDetailIndex < galleryData.length - 1;
 
   useEffect(() => {
     if (activeDetail && !isDetailClosing) {
@@ -132,6 +139,39 @@ export function Gallery() {
       closeTimeoutRef.current = null;
     }, DETAIL_CLOSE_DURATION_MS);
   };
+
+  const showAdjacentDetail = (direction: -1 | 1) => {
+    if (activeDetailIndex < 0) return;
+    const nextIndex = activeDetailIndex + direction;
+    if (nextIndex < 0 || nextIndex >= galleryData.length) return;
+
+    if (closeTimeoutRef.current) {
+      window.clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+
+    setIsDetailClosing(false);
+    setIsDetailAnimating(true);
+    setActiveDetail(galleryData[nextIndex]);
+  };
+
+  useEffect(() => {
+    if (!isDetailOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft' && canShowPreviousDetail) {
+        e.preventDefault();
+        showAdjacentDetail(-1);
+      }
+      if (e.key === 'ArrowRight' && canShowNextDetail) {
+        e.preventDefault();
+        showAdjacentDetail(1);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isDetailOpen, canShowPreviousDetail, canShowNextDetail, activeDetailIndex, galleryData]);
 
   // Measure max scrollable distance
   useEffect(() => {
@@ -538,6 +578,45 @@ export function Gallery() {
         >
           CLOSE
           <div className="absolute -bottom-1 left-0 w-full h-[1px] bg-theme-primary scale-x-100 origin-right transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-x-0 group-hover:origin-left" />
+        </button>
+
+        {/* Detail Navigation Buttons */}
+        <button
+          type="button"
+          aria-label="Previous gallery detail"
+          disabled={!canShowPreviousDetail}
+          onClick={() => showAdjacentDetail(-1)}
+          onMouseEnter={() => setIsHovering(true)}
+          onMouseLeave={() => setIsHovering(false)}
+          className={cn(
+            'group absolute left-5 md:left-10 top-1/2 -translate-y-1/2 z-30 size-12 md:size-16 text-theme-primary flex items-center justify-center cursor-pointer transition-all duration-[1000ms] ease-[cubic-bezier(0.22,1,0.36,1)] focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary/60',
+            isDetailOpen
+              ? 'opacity-100 translate-x-0 blur-0'
+              : 'opacity-0 -translate-x-8 blur-md',
+            !canShowPreviousDetail && 'opacity-20 pointer-events-none',
+          )}
+          style={{ transitionDelay: isDetailOpen ? '950ms' : '80ms' }}
+        >
+          <ChevronLeft className="size-6 md:size-8 transition-transform duration-150 ease-out group-hover:-translate-x-1 group-hover:scale-110" strokeWidth={1.5} />
+        </button>
+
+        <button
+          type="button"
+          aria-label="Next gallery detail"
+          disabled={!canShowNextDetail}
+          onClick={() => showAdjacentDetail(1)}
+          onMouseEnter={() => setIsHovering(true)}
+          onMouseLeave={() => setIsHovering(false)}
+          className={cn(
+            'group absolute right-5 md:right-10 top-1/2 -translate-y-1/2 z-30 size-12 md:size-16 text-theme-primary flex items-center justify-center cursor-pointer transition-all duration-[1000ms] ease-[cubic-bezier(0.22,1,0.36,1)] focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary/60',
+            isDetailOpen
+              ? 'opacity-100 translate-x-0 blur-0'
+              : 'opacity-0 translate-x-8 blur-md',
+            !canShowNextDetail && 'opacity-20 pointer-events-none',
+          )}
+          style={{ transitionDelay: isDetailOpen ? '950ms' : '80ms' }}
+        >
+          <ChevronRight className="size-6 md:size-8 transition-transform duration-150 ease-out group-hover:translate-x-1 group-hover:scale-110" strokeWidth={1.5} />
         </button>
 
         {/* Detail Bottom Info Blocks */}
