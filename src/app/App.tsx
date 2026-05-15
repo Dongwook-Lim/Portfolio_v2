@@ -615,7 +615,7 @@ export function Gallery() {
             "absolute top-8 left-8 md:top-12 md:left-12 text-theme-primary font-['Anton'] tracking-[4px] text-xl z-20 transition-[opacity,transform,filter] duration-[1000ms] ease-[cubic-bezier(0.22,1,0.36,1)]",
             isDetailChromeOpen
               ? 'opacity-100 translate-y-0 blur-0'
-              : 'opacity-0 -translate-y-8 blur-md',
+              : 'opacity-0 translate-y-0 blur-0',
           )}
           style={{
             color: detailChromeColor,
@@ -634,7 +634,7 @@ export function Gallery() {
             'absolute top-8 right-8 md:top-12 md:right-12 z-30 text-[10px] md:text-xs tracking-[2px] text-theme-primary font-medium cursor-pointer transition-[opacity,transform,filter] duration-[1000ms] ease-[cubic-bezier(0.22,1,0.36,1)] group',
             isDetailChromeOpen
               ? 'opacity-100 translate-y-0 blur-0'
-              : 'opacity-0 -translate-y-8 blur-md',
+              : 'opacity-0 translate-y-0 blur-0',
           )}
           style={{
             color: detailChromeColor,
@@ -699,7 +699,7 @@ export function Gallery() {
             'absolute bottom-8 left-8 md:bottom-12 md:left-12 z-20 text-[8px] md:text-[10px] tracking-[2px] text-theme-primary uppercase transition-[opacity,transform,filter] duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)]',
             isDetailChromeOpen
               ? 'opacity-100 translate-y-0 blur-0'
-              : 'opacity-0 translate-y-12 blur-md',
+              : 'opacity-0 translate-y-0 blur-0',
           )}
           style={{
             color: detailChromeColor,
@@ -721,7 +721,7 @@ export function Gallery() {
             'absolute bottom-8 right-8 md:bottom-12 md:right-12 z-20 text-[8px] md:text-[10px] tracking-[2px] text-theme-primary uppercase transition-[opacity,transform,filter] duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)] text-right',
             isDetailChromeOpen
               ? 'opacity-100 translate-y-0 blur-0'
-              : 'opacity-0 translate-y-12 blur-md',
+              : 'opacity-0 translate-y-0 blur-0',
           )}
           style={{
             color: detailChromeColor,
