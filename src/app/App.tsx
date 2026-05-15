@@ -85,6 +85,8 @@ export function Gallery() {
   const [activeDetail, setActiveDetail] = useState<GalleryItemData | null>(null);
   const [isDetailClosing, setIsDetailClosing] = useState(false);
   const [isDetailAnimating, setIsDetailAnimating] = useState(false);
+  const [isDetailSwitching, setIsDetailSwitching] = useState(false);
+  const [detailChromeColor, setDetailChromeColor] = useState('#C29B4C');
   const [isIntroLoading, setIsIntroLoading] = useState(true);
   const [maxScroll, setMaxScroll] = useState(0);
   const [currentSlide, setCurrentSlide] = useState(1);
@@ -107,6 +109,8 @@ export function Gallery() {
   });
   const targetScrollRef = useRef(0);
   const closeTimeoutRef = useRef<number | null>(null);
+  const detailSwitchTimeoutRef = useRef<number | null>(null);
+  const detailChromeColorTimeoutRef = useRef<number | null>(null);
   const DETAIL_CLOSE_DURATION_MS = 1200;
   const activeDetailIndex = activeDetail
     ? galleryData.findIndex((item) => item.id === activeDetail.id)
@@ -126,12 +130,27 @@ export function Gallery() {
   }, [activeDetail, isDetailClosing]);
 
   const isDetailOpen = isDetailAnimating;
+  const isDetailChromeOpen =
+    Boolean(activeDetail) &&
+    !isDetailClosing &&
+    (isDetailOpen || isDetailSwitching);
+  const getDetailTextColor = (detail: GalleryItemData | null) =>
+    detail?.textColor || settings.themeColor;
 
   const triggerCloseDetail = () => {
     if (!activeDetail || isDetailClosing) return;
     setIsDetailClosing(true);
+    setIsDetailSwitching(false);
     if (closeTimeoutRef.current) {
       window.clearTimeout(closeTimeoutRef.current);
+    }
+    if (detailSwitchTimeoutRef.current) {
+      window.clearTimeout(detailSwitchTimeoutRef.current);
+      detailSwitchTimeoutRef.current = null;
+    }
+    if (detailChromeColorTimeoutRef.current) {
+      window.clearTimeout(detailChromeColorTimeoutRef.current);
+      detailChromeColorTimeoutRef.current = null;
     }
     closeTimeoutRef.current = window.setTimeout(() => {
       setActiveDetail(null);
@@ -151,9 +170,31 @@ export function Gallery() {
     }
 
     setIsDetailClosing(false);
-    setIsDetailAnimating(true);
-    setActiveDetail(galleryData[nextIndex]);
+    setIsDetailSwitching(true);
+    setIsDetailAnimating(false);
+    if (detailSwitchTimeoutRef.current) {
+      window.clearTimeout(detailSwitchTimeoutRef.current);
+    }
+    detailSwitchTimeoutRef.current = window.setTimeout(() => {
+      const nextDetail = galleryData[nextIndex];
+      setActiveDetail(nextDetail);
+      detailChromeColorTimeoutRef.current = window.setTimeout(() => {
+        setDetailChromeColor(getDetailTextColor(nextDetail));
+        detailChromeColorTimeoutRef.current = null;
+      }, 250);
+      detailSwitchTimeoutRef.current = null;
+    }, 180);
   };
+
+  useEffect(() => {
+    if (!isDetailOpen || !isDetailSwitching) return;
+
+    const t = window.setTimeout(() => {
+      setIsDetailSwitching(false);
+    }, 80);
+
+    return () => window.clearTimeout(t);
+  }, [isDetailOpen, isDetailSwitching]);
 
   useEffect(() => {
     if (!isDetailOpen) return;
@@ -294,9 +335,21 @@ export function Gallery() {
   }, [cursorX, cursorY]);
 
   useEffect(() => {
+    if (!activeDetail && !isDetailSwitching) {
+      setDetailChromeColor(settings.themeColor);
+    }
+  }, [activeDetail, isDetailSwitching, settings.themeColor]);
+
+  useEffect(() => {
     return () => {
       if (closeTimeoutRef.current) {
         window.clearTimeout(closeTimeoutRef.current);
+      }
+      if (detailSwitchTimeoutRef.current) {
+        window.clearTimeout(detailSwitchTimeoutRef.current);
+      }
+      if (detailChromeColorTimeoutRef.current) {
+        window.clearTimeout(detailChromeColorTimeoutRef.current);
       }
     };
   }, []);
@@ -438,7 +491,12 @@ export function Gallery() {
                     window.clearTimeout(closeTimeoutRef.current);
                     closeTimeoutRef.current = null;
                   }
+                  if (detailChromeColorTimeoutRef.current) {
+                    window.clearTimeout(detailChromeColorTimeoutRef.current);
+                    detailChromeColorTimeoutRef.current = null;
+                  }
                   setIsDetailClosing(false);
+                  setDetailChromeColor(getDetailTextColor(d));
                   setActiveDetail(d);
                 }}
                 setIsHovering={setIsHovering}
@@ -478,7 +536,7 @@ export function Gallery() {
             : 'opacity-0 pointer-events-none scale-105',
         )}
         style={{
-          pointerEvents: isDetailOpen ? 'auto' : 'none',
+          pointerEvents: isDetailChromeOpen ? 'auto' : 'none',
           ...(activeDetail?.textColor
             ? ({
               '--theme-primary': activeDetail.textColor,
@@ -500,10 +558,10 @@ export function Gallery() {
 
         {/* Large BG Text (Staggered elegant entry) */}
         <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none z-[5]">
-          <div className="w-[120vw] text-center leading-[0.8] font-['Anton'] uppercase text-theme-primary flex flex-wrap justify-center content-center select-none">
+          <div key={activeDetail?.id} className="w-[120vw] text-center leading-[0.8] font-['Anton'] uppercase text-theme-primary flex flex-wrap justify-center content-center select-none">
             {activeDetail?.title.split(' ').map((word: string, i: number) => (
               <div
-                key={i}
+                key={`${activeDetail.id}-${i}-${word}`}
                 className={cn(
                   'mx-[1vw] transition-all duration-[1500ms] ease-[cubic-bezier(0.22,1,0.36,1)] transform-gpu',
                   isDetailOpen
@@ -524,6 +582,7 @@ export function Gallery() {
 
         {/* Center Image (Cinematic elegant float) */}
         <div
+          key={`image-${activeDetail?.id}`}
           className={cn(
             'relative z-10 max-w-[85vw] md:max-w-[60vw] max-h-[70vh] md:max-h-[75vh] shadow-[0_40px_80px_rgba(0,0,0,0.4)] transition-all duration-[1500ms] ease-[cubic-bezier(0.22,1,0.36,1)]',
             isDetailOpen
@@ -553,12 +612,15 @@ export function Gallery() {
         {/* Detail Header Text */}
         <div
           className={cn(
-            "absolute top-8 left-8 md:top-12 md:left-12 text-theme-primary font-['Anton'] tracking-[4px] text-xl z-20 transition-all duration-[1000ms] ease-[cubic-bezier(0.22,1,0.36,1)]",
-            isDetailOpen
+            "absolute top-8 left-8 md:top-12 md:left-12 text-theme-primary font-['Anton'] tracking-[4px] text-xl z-20 transition-[opacity,transform,filter] duration-[1000ms] ease-[cubic-bezier(0.22,1,0.36,1)]",
+            isDetailChromeOpen
               ? 'opacity-100 translate-y-0 blur-0'
               : 'opacity-0 -translate-y-8 blur-md',
           )}
-          style={{ transitionDelay: isDetailOpen ? '800ms' : '200ms' }}
+          style={{
+            color: detailChromeColor,
+            transitionDelay: isDetailChromeOpen ? '800ms' : '200ms',
+          }}
         >
           LIMDONGWOOK
         </div>
@@ -569,15 +631,21 @@ export function Gallery() {
           onMouseEnter={() => setIsHovering(true)}
           onMouseLeave={() => setIsHovering(false)}
           className={cn(
-            'absolute top-8 right-8 md:top-12 md:right-12 z-30 text-[10px] md:text-xs tracking-[2px] text-theme-primary font-medium cursor-pointer transition-all duration-[1000ms] ease-[cubic-bezier(0.22,1,0.36,1)] group',
-            isDetailOpen
+            'absolute top-8 right-8 md:top-12 md:right-12 z-30 text-[10px] md:text-xs tracking-[2px] text-theme-primary font-medium cursor-pointer transition-[opacity,transform,filter] duration-[1000ms] ease-[cubic-bezier(0.22,1,0.36,1)] group',
+            isDetailChromeOpen
               ? 'opacity-100 translate-y-0 blur-0'
               : 'opacity-0 -translate-y-8 blur-md',
           )}
-          style={{ transitionDelay: isDetailOpen ? '900ms' : '100ms' }}
+          style={{
+            color: detailChromeColor,
+            transitionDelay: isDetailChromeOpen ? '900ms' : '100ms',
+          }}
         >
           CLOSE
-          <div className="absolute -bottom-1 left-0 w-full h-[1px] bg-theme-primary scale-x-100 origin-right transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-x-0 group-hover:origin-left" />
+          <div
+            className="absolute -bottom-1 left-0 w-full h-[1px] scale-x-100 origin-right transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-x-0 group-hover:origin-left"
+            style={{ backgroundColor: detailChromeColor }}
+          />
         </button>
 
         {/* Detail Navigation Buttons */}
@@ -589,13 +657,16 @@ export function Gallery() {
           onMouseEnter={() => setIsHovering(true)}
           onMouseLeave={() => setIsHovering(false)}
           className={cn(
-            'group absolute left-5 md:left-10 top-1/2 -translate-y-1/2 z-30 size-12 md:size-16 text-theme-primary flex items-center justify-center cursor-pointer transition-all duration-[1000ms] ease-[cubic-bezier(0.22,1,0.36,1)] focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary/60',
-            isDetailOpen
+            'group absolute left-5 md:left-10 top-1/2 -translate-y-1/2 z-30 size-12 md:size-16 text-theme-primary flex items-center justify-center cursor-pointer transition-[opacity,transform,filter] duration-[1000ms] ease-[cubic-bezier(0.22,1,0.36,1)] focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary/60',
+            isDetailChromeOpen
               ? 'opacity-100 translate-x-0 blur-0'
               : 'opacity-0 -translate-x-8 blur-md',
             !canShowPreviousDetail && 'opacity-20 pointer-events-none',
           )}
-          style={{ transitionDelay: isDetailOpen ? '950ms' : '80ms' }}
+          style={{
+            color: detailChromeColor,
+            transitionDelay: isDetailChromeOpen ? '950ms' : '80ms',
+          }}
         >
           <ChevronLeft className="size-6 md:size-8 transition-transform duration-150 ease-out group-hover:-translate-x-1 group-hover:scale-110" strokeWidth={1.5} />
         </button>
@@ -608,13 +679,16 @@ export function Gallery() {
           onMouseEnter={() => setIsHovering(true)}
           onMouseLeave={() => setIsHovering(false)}
           className={cn(
-            'group absolute right-5 md:right-10 top-1/2 -translate-y-1/2 z-30 size-12 md:size-16 text-theme-primary flex items-center justify-center cursor-pointer transition-all duration-[1000ms] ease-[cubic-bezier(0.22,1,0.36,1)] focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary/60',
-            isDetailOpen
+            'group absolute right-5 md:right-10 top-1/2 -translate-y-1/2 z-30 size-12 md:size-16 text-theme-primary flex items-center justify-center cursor-pointer transition-[opacity,transform,filter] duration-[1000ms] ease-[cubic-bezier(0.22,1,0.36,1)] focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary/60',
+            isDetailChromeOpen
               ? 'opacity-100 translate-x-0 blur-0'
               : 'opacity-0 translate-x-8 blur-md',
             !canShowNextDetail && 'opacity-20 pointer-events-none',
           )}
-          style={{ transitionDelay: isDetailOpen ? '950ms' : '80ms' }}
+          style={{
+            color: detailChromeColor,
+            transitionDelay: isDetailChromeOpen ? '950ms' : '80ms',
+          }}
         >
           <ChevronRight className="size-6 md:size-8 transition-transform duration-150 ease-out group-hover:translate-x-1 group-hover:scale-110" strokeWidth={1.5} />
         </button>
@@ -622,12 +696,15 @@ export function Gallery() {
         {/* Detail Bottom Info Blocks */}
         <div
           className={cn(
-            'absolute bottom-8 left-8 md:bottom-12 md:left-12 z-20 text-[8px] md:text-[10px] tracking-[2px] text-theme-primary uppercase transition-all duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)]',
-            isDetailOpen
+            'absolute bottom-8 left-8 md:bottom-12 md:left-12 z-20 text-[8px] md:text-[10px] tracking-[2px] text-theme-primary uppercase transition-[opacity,transform,filter] duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)]',
+            isDetailChromeOpen
               ? 'opacity-100 translate-y-0 blur-0'
               : 'opacity-0 translate-y-12 blur-md',
           )}
-          style={{ transitionDelay: isDetailOpen ? '1000ms' : '50ms' }}
+          style={{
+            color: detailChromeColor,
+            transitionDelay: isDetailChromeOpen ? '1000ms' : '50ms',
+          }}
         >
           <div className="grid grid-cols-[80px_1fr] md:grid-cols-[120px_1fr] gap-y-2">
             <span className="opacity-60">TITLE</span>
@@ -641,12 +718,15 @@ export function Gallery() {
 
         <div
           className={cn(
-            'absolute bottom-8 right-8 md:bottom-12 md:right-12 z-20 text-[8px] md:text-[10px] tracking-[2px] text-theme-primary uppercase transition-all duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)] text-right',
-            isDetailOpen
+            'absolute bottom-8 right-8 md:bottom-12 md:right-12 z-20 text-[8px] md:text-[10px] tracking-[2px] text-theme-primary uppercase transition-[opacity,transform,filter] duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)] text-right',
+            isDetailChromeOpen
               ? 'opacity-100 translate-y-0 blur-0'
               : 'opacity-0 translate-y-12 blur-md',
           )}
-          style={{ transitionDelay: isDetailOpen ? '1100ms' : '0ms' }}
+          style={{
+            color: detailChromeColor,
+            transitionDelay: isDetailChromeOpen ? '1100ms' : '0ms',
+          }}
         >
           EXPLORE BEHIND-THE-SCENES OF <br />
           THE MAKING OF {activeDetail?.title}.
