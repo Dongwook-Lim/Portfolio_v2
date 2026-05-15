@@ -292,14 +292,16 @@ export function Gallery() {
         return;
       }
 
-      const diff = startX - currentX;
-      targetScrollRef.current += diff * 2.0;
+      const diffX = startX - currentX;
+      const diffY = 'touches' in e ? startY - currentY : 0;
+      targetScrollRef.current += (diffX + diffY) * 2.0;
       targetScrollRef.current = Math.max(
         0,
         Math.min(targetScrollRef.current, maxScroll),
       );
       scrollX.set(targetScrollRef.current);
       startX = currentX;
+      startY = currentY;
     };
     const handleEnd = () => {
       isDragging = false;
@@ -516,16 +518,6 @@ export function Gallery() {
           />
         </motion.div>
       </main>
-
-      {/* Mobile drag hint */}
-      <div
-        className={cn(
-          "fixed bottom-12 left-1/2 -translate-x-1/2 text-[10px] tracking-[3px] opacity-50 md:hidden pointer-events-none font-['Anton'] uppercase text-[#f0f0f0] transition-opacity duration-500",
-          activeDetail ? 'opacity-0' : 'opacity-50',
-        )}
-      >
-        DRAG TO EXPLORE
-      </div>
 
       {/* Detailed Page Overlay (Image 1 Style) */}
       <div
