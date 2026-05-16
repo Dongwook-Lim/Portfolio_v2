@@ -96,13 +96,13 @@ export function GalleryItem({
     // 느린 속도에서는 잔잔하게 유지하되, '중간 속도'에서 조금 더 자연스럽게 솟아오르도록 지수 곡선 적용
     let popUpAmplitude = 0;
     if (absVel < 700) {
-      // 느린~중간 스크롤 (속도 0~700): 곡선을 사용하여 아주 느릴땐 억제하고, 중간 속도에서 서서히 최대 24px까지 도달
+      // 느린~중간 스크롤 (속도 0~700): 곡선을 사용하여 아주 느릴땐 억제하고, 중간 속도에서 서서히 최대 36px까지 도달
       const t = absVel / 700;
-      popUpAmplitude = Math.pow(t, 1.5) * 24;
+      popUpAmplitude = Math.pow(t, 1.5) * 36;
     } else {
-      // 강한 스크롤 (속도 700 초과): 초과된 속도에 비례해 확 솟아오름 (최대 120px 제한)
+      // 강한 스크롤 (속도 700 초과): 초과된 속도에 비례해 확 솟아오름 (최대 160px 제한)
       const overSpeed = absVel - 700;
-      popUpAmplitude = Math.min(120, 24 + overSpeed * 0.1);
+      popUpAmplitude = Math.min(160, 36 + overSpeed * 0.14);
     }
 
     // 진폭(popUpAmplitude)에 멈춤 감지 팩터(smoothScrollingFactor)를 곱해서, 멈추면 무조건 0으로 스르르 떨어지게 함
@@ -122,7 +122,7 @@ export function GalleryItem({
       heightProximity *
       heightProximity *
       (heightProximity * (heightProximity * 6 - 15) + 10);
-    const heightPercent = 80 + 40 * smoothFactor; // 80% ~ 120% 사이 조절
+    const heightPercent = 88 + 24 * smoothFactor; // 88% ~ 112% 사이 조절
 
     // Z-index: center item should be on top, but never go below 1
     // to prevent edge items from dropping behind sibling/background layers.
