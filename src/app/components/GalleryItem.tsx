@@ -67,10 +67,12 @@ export function GalleryItem({
 
     const vel = smoothVelocity.get();
     const absVel = Math.abs(vel);
+    const isMobileViewport = window.innerWidth < 768;
 
     // 1. 스크롤 상태(0~1) 계산: 위치가 내려가는 속도(Y축)와 색상이 변하는 속도를 완벽하게 일치시키기 위해
     // 멈출 때의 지연(Envelope 여운)을 제거하고 즉각적으로 반응하도록 수정합니다.
-    const rawScrollFactor = Math.min(1, absVel / 300);
+    const scrollSensitivity = isMobileViewport ? 300 : 240;
+    const rawScrollFactor = Math.min(1, absVel / scrollSensitivity);
     if (rawScrollFactor > currentScrollFactorRef.current) {
       currentScrollFactorRef.current +=
         (rawScrollFactor - currentScrollFactorRef.current) * 0.25;
@@ -95,14 +97,20 @@ export function GalleryItem({
     // Vertical curve: 스크롤 '속도' 자체를 직접적으로 반영하여 솟아오르는 진폭 계산
     // 느린 속도에서는 잔잔하게 유지하되, '중간 속도'에서 조금 더 자연스럽게 솟아오르도록 지수 곡선 적용
     let popUpAmplitude = 0;
+    const midSpeedPeak = isMobileViewport ? 36 : 44;
+    const maxPopUp = isMobileViewport ? 160 : 190;
+    const overSpeedMultiplier = isMobileViewport ? 0.14 : 0.18;
     if (absVel < 700) {
-      // 느린~중간 스크롤 (속도 0~700): 곡선을 사용하여 아주 느릴땐 억제하고, 중간 속도에서 서서히 최대 36px까지 도달
+      // 느린~중간 스크롤 (속도 0~700): 곡선을 사용하여 아주 느릴땐 억제하고, 중간 속도에서 서서히 최대값까지 도달
       const t = absVel / 700;
-      popUpAmplitude = Math.pow(t, 1.5) * 36;
+      popUpAmplitude = Math.pow(t, 1.5) * midSpeedPeak;
     } else {
-      // 강한 스크롤 (속도 700 초과): 초과된 속도에 비례해 확 솟아오름 (최대 160px 제한)
+      // 강한 스크롤 (속도 700 초과): 초과된 속도에 비례해 확 솟아오름
       const overSpeed = absVel - 700;
-      popUpAmplitude = Math.min(160, 36 + overSpeed * 0.14);
+      popUpAmplitude = Math.min(
+        maxPopUp,
+        midSpeedPeak + overSpeed * overSpeedMultiplier,
+      );
     }
 
     // 진폭(popUpAmplitude)에 멈춤 감지 팩터(smoothScrollingFactor)를 곱해서, 멈추면 무조건 0으로 스르르 떨어지게 함
@@ -110,10 +118,9 @@ export function GalleryItem({
 
     // 자연스러운 움직임을 위해 수동 보간(Lerp) 적용
     // 목표값(targetY) 자체가 이미 부드럽게 변하므로, 여기서는 목표값을 조금 더 충실하게 따라가게 설정
+    const translateYLerp = isMobileViewport ? 0.3 : 0.38;
     currentTranslateYRef.current +=
-      (targetY - currentTranslateYRef.current) * 0.3;
-
-    const isMobileViewport = window.innerWidth < 768;
+      (targetY - currentTranslateYRef.current) * translateYLerp;
 
     // Height: 모바일에서는 좁은 화면 때문에 중앙 하나만 커지지 않도록 영향 범위를 넓히고 진폭을 낮춤
     const heightInfluenceRange = isMobileViewport ? 1.0 : 0.6;
