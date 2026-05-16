@@ -320,7 +320,7 @@ export function LandingPages({
 
       {/* Panel 4 */}
       <motion.section
-        className="w-[100vw] h-full relative flex items-center justify-center shrink-0 text-white overflow-hidden bg-[#0c0c0c] z-30 ring-2 ring-[#0c0c0c]"
+        className="w-[100vw] h-full relative flex items-center justify-center shrink-0 text-white overflow-hidden bg-[#141414] z-30 ring-2 ring-[#141414]"
         style={{ x: p4SectionX, y: p4SectionY }}
       >
         <h1

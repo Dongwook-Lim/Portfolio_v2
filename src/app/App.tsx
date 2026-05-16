@@ -15,7 +15,11 @@ import { ContactPanel } from './components/ContactPanel';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { RouterProvider } from 'react-router';
 import { router } from './routes';
-import { AdminProvider, useAdmin, type GalleryItemData } from './context/AdminContext';
+import {
+  AdminProvider,
+  useAdmin,
+  type GalleryItemData,
+} from './context/AdminContext';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -92,7 +96,9 @@ function LoadingWave({ isActive }: { isActive: boolean }) {
 
 export function Gallery() {
   const [isHovering, setIsHovering] = useState(false);
-  const [activeDetail, setActiveDetail] = useState<GalleryItemData | null>(null);
+  const [activeDetail, setActiveDetail] = useState<GalleryItemData | null>(
+    null,
+  );
   const [isDetailClosing, setIsDetailClosing] = useState(false);
   const [isDetailAnimating, setIsDetailAnimating] = useState(false);
   const [isDetailSwitching, setIsDetailSwitching] = useState(false);
@@ -279,7 +285,13 @@ export function Gallery() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isDetailOpen, canShowPreviousDetail, canShowNextDetail, activeDetailIndex, galleryData]);
+  }, [
+    isDetailOpen,
+    canShowPreviousDetail,
+    canShowNextDetail,
+    activeDetailIndex,
+    galleryData,
+  ]);
 
   // Measure max scrollable distance
   useEffect(() => {
@@ -462,11 +474,11 @@ export function Gallery() {
   });
 
   return (
-    <div className="w-full h-screen bg-[#0c0c0c] text-[#f0f0f0] font-['Inter'] overflow-hidden overscroll-none selection:bg-[#d4af37] selection:text-[#0c0c0c] relative">
+    <div className="w-full h-screen bg-[#141414] text-[#f0f0f0] font-['Inter'] overflow-hidden overscroll-none selection:bg-[#d4af37] selection:text-[#0c0c0c] relative">
       {/* Loading Overlay */}
       <div
         className={cn(
-          'fixed inset-0 bg-[#0c0c0c] z-[9999] flex items-center justify-center transition-opacity duration-700 pointer-events-none',
+          'fixed inset-0 bg-[#141414] z-[9999] flex items-center justify-center transition-opacity duration-700 pointer-events-none',
           isIntroLoading || isAdminLoading ? 'opacity-100' : 'opacity-0',
         )}
       >
@@ -502,7 +514,7 @@ export function Gallery() {
             // 슬라이드 개수와 무관하게 25개의 바 위를 부드럽게 이동하도록 위치 매핑
             const activeIndex = Math.round(
               ((currentSlide - 1) / Math.max(1, galleryData.length - 1)) *
-              (totalBars - 1),
+                (totalBars - 1),
             );
             const distance = Math.abs(i - activeIndex);
 
@@ -533,7 +545,7 @@ export function Gallery() {
       </div>
 
       {/* Main Wave Gallery (Book-shelf layout + Wave scroll) */}
-      <main className="absolute inset-0 flex items-center bg-[#0c0c0c] pointer-events-none select-none overflow-hidden perspective-[1200px]">
+      <main className="absolute inset-0 flex items-center bg-[#141414] pointer-events-none select-none overflow-hidden perspective-[1200px]">
         <motion.div
           ref={containerRef}
           className="flex items-center h-full pointer-events-auto"
@@ -546,10 +558,10 @@ export function Gallery() {
           />
 
           {/* 2. Transition Spacer (allows the first gallery item to be centered) */}
-          <div className="w-[30vw] shrink-0 bg-[#0c0c0c] h-full" />
+          <div className="w-[30vw] shrink-0 bg-[#141414] h-full" />
 
           {/* 3. Interactive 3D Wave Gallery */}
-          <div className="flex items-center gap-2 md:gap-4 shrink-0 bg-[#0c0c0c]">
+          <div className="flex items-center gap-[7px] md:gap-[14px] shrink-0 bg-[#141414]">
             {galleryData.map((data, index) => (
               <GalleryItem
                 key={data.id}
@@ -566,7 +578,7 @@ export function Gallery() {
           </div>
 
           {/* 4. Ending Spacer */}
-          <div className="w-[40vw] shrink-0 bg-[#0c0c0c] h-full" />
+          <div className="w-[40vw] shrink-0 bg-[#141414] h-full" />
 
           {/* 5. Contact Panel */}
           <ContactPanel
@@ -590,8 +602,8 @@ export function Gallery() {
           pointerEvents: isDetailChromeOpen ? 'auto' : 'none',
           ...(activeDetail?.textColor
             ? ({
-              '--theme-primary': activeDetail.textColor,
-            } as React.CSSProperties)
+                '--theme-primary': activeDetail.textColor,
+              } as React.CSSProperties)
             : {}),
         }}
       >
@@ -609,7 +621,10 @@ export function Gallery() {
 
         {/* Large BG Text (Staggered elegant entry) */}
         <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none z-[5]">
-          <div key={activeDetail?.id} className="w-[120vw] text-center leading-[0.8] font-['Anton'] uppercase text-theme-primary flex flex-wrap justify-center content-center select-none">
+          <div
+            key={activeDetail?.id}
+            className="w-[120vw] text-center leading-[0.8] font-['Anton'] uppercase text-theme-primary flex flex-wrap justify-center content-center select-none"
+          >
             {activeDetail?.title.split(' ').map((word: string, i: number) => (
               <div
                 key={`${activeDetail.id}-${i}-${word}`}
@@ -720,7 +735,10 @@ export function Gallery() {
             transitionDelay: isDetailChromeOpen ? '950ms' : '80ms',
           }}
         >
-          <ChevronLeft className="size-6 md:size-8 transition-transform duration-150 ease-out group-hover:-translate-x-1 group-hover:scale-110" strokeWidth={1.5} />
+          <ChevronLeft
+            className="size-6 md:size-8 transition-transform duration-150 ease-out group-hover:-translate-x-1 group-hover:scale-110"
+            strokeWidth={1.5}
+          />
         </button>
 
         <button
@@ -742,7 +760,10 @@ export function Gallery() {
             transitionDelay: isDetailChromeOpen ? '950ms' : '80ms',
           }}
         >
-          <ChevronRight className="size-6 md:size-8 transition-transform duration-150 ease-out group-hover:translate-x-1 group-hover:scale-110" strokeWidth={1.5} />
+          <ChevronRight
+            className="size-6 md:size-8 transition-transform duration-150 ease-out group-hover:translate-x-1 group-hover:scale-110"
+            strokeWidth={1.5}
+          />
         </button>
 
         {/* Detail Bottom Info Blocks */}
