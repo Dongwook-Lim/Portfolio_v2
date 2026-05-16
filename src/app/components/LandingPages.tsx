@@ -333,7 +333,7 @@ export function LandingPages({
         <motion.img
           src={gallery1Img}
           alt=""
-          className="absolute w-[35vw] md:w-[15vw] left-[10%] md:left-[15%] top-[20%] z-10 object-cover shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] cursor-pointer"
+          className="absolute w-[30vw] md:w-[15vw] left-[5%] md:left-[15%] top-[25%] md:top-[15%] z-10 object-cover shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] cursor-pointer"
           style={{ x: p4Img1X }}
           onMouseEnter={() => setIsHovering(true)}
           onMouseLeave={() => setIsHovering(false)}
@@ -342,7 +342,7 @@ export function LandingPages({
         <motion.img
           src={gallery2Img}
           alt=""
-          className="absolute w-[40vw] md:w-[23vw] right-[5%] md:right-[10%] bottom-[20%] z-10 object-cover shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] cursor-pointer"
+          className="absolute w-[40vw] md:w-[23vw] right-[-10%] md:right-[10%] bottom-[33%] md:bottom-[20%] z-10 object-cover shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] cursor-pointer"
           style={{ x: p4Img2X }}
           onMouseEnter={() => setIsHovering(true)}
           onMouseLeave={() => setIsHovering(false)}
