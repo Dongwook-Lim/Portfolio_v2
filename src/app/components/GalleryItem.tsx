@@ -85,7 +85,8 @@ export function GalleryItem({
     const centerProximity = Math.pow(Math.max(0, 1 - Math.abs(ratio)), 2);
 
     // 관성 및 탄성으로 인한 회전(비스듬해지는) 효과 (회전 강도: 기존의 2배로 조정)
-    let rotateY = vel * 0.04 * centerProximity;
+    const rotateMultiplier = isMobileViewport ? 0.07 : 0.04;
+    let rotateY = vel * rotateMultiplier * centerProximity;
     rotateY = Math.max(-50, Math.min(50, rotateY));
 
     // 중앙에 올 때 약간 팝업되는 효과만 유지하고, 스크롤 시 Z축으로 밀려나며 작아지는 효과 제거
