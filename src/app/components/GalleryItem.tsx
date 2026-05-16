@@ -113,16 +113,23 @@ export function GalleryItem({
     currentTranslateYRef.current +=
       (targetY - currentTranslateYRef.current) * 0.3;
 
-    // Height: 화면 중앙에서 60% 지점까지만 크기가 커지고, 그 외곽은 모두 동일한 기본 크기로 고정
-    // 범위를 55% -> 60%로 아주 살짝만 더 넓혀 경사도를 낮추고 더 완만하게 떨어지도록 유도
-    const heightProximity = Math.max(0, 1 - Math.abs(ratio) / 0.6);
+    const isMobileViewport = window.innerWidth < 768;
+
+    // Height: 모바일에서는 좁은 화면 때문에 중앙 하나만 커지지 않도록 영향 범위를 넓히고 진폭을 낮춤
+    const heightInfluenceRange = isMobileViewport ? 1.0 : 0.6;
+    const heightProximity = Math.max(
+      0,
+      1 - Math.abs(ratio) / heightInfluenceRange,
+    );
     // 최고급 애니메이션에 쓰이는 Smootherstep (Ken Perlin) 곡선 적용: 가속도(2차 미분)까지 부드럽게 연결되어 이질감이 전혀 없음
     const smoothFactor =
       heightProximity *
       heightProximity *
       heightProximity *
       (heightProximity * (heightProximity * 6 - 15) + 10);
-    const heightPercent = 88 + 24 * smoothFactor; // 88% ~ 112% 사이 조절
+    const heightPercent = isMobileViewport
+      ? 92 + 16 * smoothFactor // 모바일: 92% ~ 108%
+      : 88 + 24 * smoothFactor; // 데스크탑: 88% ~ 112%
 
     // Z-index: center item should be on top, but never go below 1
     // to prevent edge items from dropping behind sibling/background layers.
