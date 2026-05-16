@@ -609,12 +609,12 @@ export function Gallery() {
       >
         <div
           className={cn(
-            'absolute inset-0 z-0 transition-opacity ease-[cubic-bezier(0.22,1,0.36,1)]',
+            'absolute inset-0 z-0 transition-[opacity,background-color] ease-[cubic-bezier(0.22,1,0.36,1)]',
             isDetailOpen ? 'opacity-100' : 'opacity-0',
           )}
           style={{
             backgroundColor: activeDetail?.bgColor || '#fcfcfc',
-            transitionDuration: isDetailOpen ? '800ms' : '700ms',
+            transitionDuration: isDetailOpen ? '1200ms' : '700ms',
             transitionDelay: isDetailOpen ? '0ms' : '350ms',
           }}
         />
