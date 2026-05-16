@@ -561,7 +561,7 @@ export function Gallery() {
           <div className="w-[30vw] shrink-0 bg-[#141414] h-full" />
 
           {/* 3. Interactive 3D Wave Gallery */}
-          <div className="flex items-center gap-[7px] md:gap-[14px] shrink-0 bg-[#141414]">
+          <div className="flex items-center gap-[12px] md:gap-[18px] shrink-0 bg-[#141414]">
             {galleryData.map((data, index) => (
               <GalleryItem
                 key={data.id}
