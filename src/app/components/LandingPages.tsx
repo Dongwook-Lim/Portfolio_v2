@@ -306,11 +306,11 @@ export function LandingPages({
         </motion.div>
 
         <motion.div
-          className="absolute bottom-10 left-[100vw] w-full whitespace-nowrap z-10 pointer-events-none"
+          className="absolute bottom-13 left-[90vw] w-full whitespace-nowrap z-10 pointer-events-none"
           style={{ x: p3HugeX }}
         >
           <h2
-            className="text-[clamp(4rem,15vw,20rem)] leading-[0.8] tracking-[-0.02em] translate-x-[-10vw] md:translate-x-[-30vw]"
+            className="text-[clamp(4rem,13vw,20rem)] leading-[0.8] tracking-[-0.02em] translate-x-[-10vw] md:translate-x-[-30vw]"
             style={{ fontFamily: '"Playfair Display", serif' }}
           >
             MARCH 29, 1993 &mdash;
