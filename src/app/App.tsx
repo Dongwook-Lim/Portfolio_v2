@@ -23,6 +23,18 @@ function cn(...inputs: ClassValue[]) {
 
 function LoadingWave({ isActive }: { isActive: boolean }) {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isCompactViewport, setIsCompactViewport] = useState(
+    typeof window !== 'undefined' ? window.innerWidth < 768 : false,
+  );
+
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 767px)');
+    const updateViewport = () => setIsCompactViewport(media.matches);
+
+    updateViewport();
+    media.addEventListener('change', updateViewport);
+    return () => media.removeEventListener('change', updateViewport);
+  }, []);
 
   useEffect(() => {
     if (!isActive) return;
@@ -49,30 +61,50 @@ function LoadingWave({ isActive }: { isActive: boolean }) {
   }, [isActive]);
 
   return (
-    <div className="flex gap-[8px] items-center justify-center h-[60px]">
+    <div className="flex gap-[8px] items-center justify-center h-[72px] md:h-[60px]">
       {Array.from({ length: 25 }).map((_, i) => {
         const distance = Math.abs(i - activeIndex);
         const curveFactor = Math.max(0, 1 - distance / 5);
-        const height = 16 + curveFactor * 24;
-        const yOffset = (1 - curveFactor) * 12;
+        const mobileWave =
+          curveFactor *
+          curveFactor *
+          curveFactor *
+          (curveFactor * (curveFactor * 6 - 15) + 10);
+        const desktopHeight = 16 + curveFactor * 24;
+        const desktopYOffset = (1 - curveFactor) * 12;
+        const mobileScaleY = 0.62 + mobileWave * 0.5;
+        const mobileScaleX = 1 + mobileWave * 0.06;
+        const mobileYOffset = (1 - mobileWave) * 7;
+        const mobileOpacity = Math.max(0.18, 0.35 + mobileWave * 0.65);
 
         // 현재 위치에서 가장 가까운 단 1개의 바를 찾아서 색상 부여
         const isCenter = i === Math.round(activeIndex);
+        const barStyle = isCompactViewport
+          ? {
+            height: '36px',
+            transform: `translateY(${mobileYOffset}px) scaleX(${mobileScaleX}) scaleY(${mobileScaleY})`,
+            opacity: mobileOpacity,
+            transformOrigin: 'center bottom',
+          }
+          : {
+            height: `${desktopHeight}px`,
+            transform: `translateY(${desktopYOffset}px)`,
+            opacity: Math.max(0.15, 1 - distance * 0.15),
+          };
 
         return (
           <div
             key={i}
             className={cn(
-              'w-[1.5px] shrink-0 rounded-full transition-all duration-[400ms] ease-out',
+              'w-[1.5px] shrink-0 rounded-full',
+              isCompactViewport
+                ? 'will-change-transform transition-[background-color,box-shadow] duration-200 ease-out'
+                : 'transition-all duration-[400ms] ease-out',
               isCenter
                 ? 'bg-theme-primary shadow-[0_0_10px_var(--theme-primary)] z-10'
                 : 'bg-white',
             )}
-            style={{
-              height: `${height}px`,
-              transform: `translateY(${yOffset}px)`,
-              opacity: Math.max(0.15, 1 - distance * 0.15),
-            }}
+            style={barStyle}
           />
         );
       })}
