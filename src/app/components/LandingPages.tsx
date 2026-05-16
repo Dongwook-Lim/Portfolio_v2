@@ -296,7 +296,7 @@ export function LandingPages({
         </motion.div>
 
         <motion.div
-          className="absolute top-[35%] md:top-[20%] right-[10vw] md:right-[15vw] w-[35vw] md:w-[20vw] z-20 font-['Inter'] text-[10px] md:text-sm leading-relaxed"
+          className="absolute top-[30%] md:top-[20%] right-[10vw] md:right-[15vw] w-[35vw] md:w-[20vw] z-20 font-['Inter'] text-[10px] md:text-sm leading-relaxed"
           style={{ x: p3Text2X }}
         >
           <span className="font-bold mb-1 block">(03)</span>
