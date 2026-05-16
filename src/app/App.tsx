@@ -349,9 +349,11 @@ export function Gallery() {
         return;
       }
 
+      const isTouchMove = 'touches' in e;
       const diffX = startX - currentX;
-      const diffY = 'touches' in e ? startY - currentY : 0;
-      targetScrollRef.current += (diffX + diffY) * 2.0;
+      const diffY = isTouchMove ? startY - currentY : 0;
+      const dragSpeed = isTouchMove ? 3.2 : 2.0;
+      targetScrollRef.current += (diffX + diffY) * dragSpeed;
       targetScrollRef.current = Math.max(
         0,
         Math.min(targetScrollRef.current, maxScroll),
