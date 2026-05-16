@@ -702,7 +702,7 @@ export function Gallery() {
             'group absolute left-5 md:left-10 top-1/2 -translate-y-1/2 z-30 size-12 md:size-16 text-theme-primary flex items-center justify-center cursor-pointer transition-[opacity,transform,filter] duration-[1000ms] ease-[cubic-bezier(0.22,1,0.36,1)] focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary/60',
             isDetailChromeOpen
               ? 'opacity-100 translate-x-0 blur-0'
-              : 'opacity-0 -translate-x-8 blur-md',
+              : 'opacity-0 translate-x-0 blur-0',
             !canShowPreviousDetail && 'opacity-20 pointer-events-none',
           )}
           style={{
@@ -724,7 +724,7 @@ export function Gallery() {
             'group absolute right-5 md:right-10 top-1/2 -translate-y-1/2 z-30 size-12 md:size-16 text-theme-primary flex items-center justify-center cursor-pointer transition-[opacity,transform,filter] duration-[1000ms] ease-[cubic-bezier(0.22,1,0.36,1)] focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary/60',
             isDetailChromeOpen
               ? 'opacity-100 translate-x-0 blur-0'
-              : 'opacity-0 translate-x-8 blur-md',
+              : 'opacity-0 translate-x-0 blur-0',
             !canShowNextDetail && 'opacity-20 pointer-events-none',
           )}
           style={{
