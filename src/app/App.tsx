@@ -558,7 +558,7 @@ export function Gallery() {
           />
 
           {/* 2. Transition Spacer (allows the first gallery item to be centered) */}
-          <div className="w-[30vw] shrink-0 bg-[#141414] h-full" />
+          <div className="w-[75vw] md:w-[30vw] shrink-0 bg-[#141414] h-full" />
 
           {/* 3. Interactive 3D Wave Gallery */}
           <div className="flex items-center gap-[12px] md:gap-[18px] shrink-0 bg-[#141414]">
@@ -578,7 +578,7 @@ export function Gallery() {
           </div>
 
           {/* 4. Ending Spacer */}
-          <div className="w-[40vw] shrink-0 bg-[#141414] h-full" />
+          <div className="w-[75vw] md:w-[40vw] shrink-0 bg-[#141414] h-full" />
 
           {/* 5. Contact Panel */}
           <ContactPanel

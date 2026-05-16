@@ -165,7 +165,7 @@ export function GalleryItem({
 
   return (
     <div
-      className="relative shrink-0 flex items-end justify-center cursor-pointer group w-[50px] md:w-[77px] h-[198px] md:h-[306px] transition-all duration-300 ease-out"
+      className="relative shrink-0 flex items-end justify-center cursor-pointer group w-[44px] md:w-[77px] h-[176px] md:h-[306px] transition-all duration-300 ease-out"
       onClick={() => onOpenDetail(data)}
       onMouseEnter={() => {
         setIsHovering(true);
