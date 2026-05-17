@@ -148,10 +148,11 @@ export function Gallery() {
   }, [activeDetail, isDetailClosing]);
 
   const isDetailOpen = isDetailAnimating;
-  const isDetailChromeOpen =
+  const isDetailSurfaceOpen =
     Boolean(activeDetail) &&
     !isDetailClosing &&
     (isDetailOpen || isDetailSwitching);
+  const isDetailChromeOpen = isDetailSurfaceOpen;
   const getDetailTextColor = (detail: GalleryItemData | null) =>
     detail?.textColor || settings.themeColor;
 
@@ -610,12 +611,12 @@ export function Gallery() {
         <div
           className={cn(
             'absolute inset-0 z-0 transition-[opacity,background-color] ease-[cubic-bezier(0.22,1,0.36,1)]',
-            isDetailOpen ? 'opacity-100' : 'opacity-0',
+            isDetailSurfaceOpen ? 'opacity-100' : 'opacity-0',
           )}
           style={{
             backgroundColor: activeDetail?.bgColor || '#fcfcfc',
-            transitionDuration: isDetailOpen ? '1200ms' : '700ms',
-            transitionDelay: isDetailOpen ? '0ms' : '350ms',
+            transitionDuration: isDetailSurfaceOpen ? '1200ms' : '700ms',
+            transitionDelay: isDetailSurfaceOpen ? '0ms' : '350ms',
           }}
         />
 
