@@ -7,6 +7,7 @@ interface GalleryItemProps {
     title: string;
     location: string;
     img: string;
+    textColor?: string;
   };
   index: number;
   smoothScrollX: MotionValue<number>;
@@ -230,7 +231,10 @@ export function GalleryItem({
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100 transition-opacity duration-300 pointer-events-none overflow-hidden">
           {/* absolute와 origin-left를 활용해 텍스트를 하단에 고정하고 위로 뻗어나가게 세로로 배치합니다. bottom-2에서 bottom-0으로 수정해 아주 조금 더 아래로 내렸습니다. */}
           <div className="absolute bottom-0 left-1/2 origin-left -rotate-90 flex flex-col items-start translate-y-6 [@media(hover:hover)_and_(pointer:fine)]:group-hover:translate-y-0 transition-transform duration-300 ease-out">
-            <span className="text-white font-['Anton'] text-xl md:text-2xl tracking-[4px] uppercase whitespace-nowrap drop-shadow-md">
+            <span
+              className="font-['Anton'] text-xl md:text-2xl tracking-[4px] uppercase whitespace-nowrap drop-shadow-md"
+              style={{ color: data.textColor || '#ffffff' }}
+            >
               {data.title}
             </span>
             <span className="text-[#d4af37] text-[8px] md:text-[10px] font-medium tracking-[3px] uppercase whitespace-nowrap mt-1 drop-shadow-md">
