@@ -708,12 +708,15 @@ export function Gallery() {
           }}
         >
           {activeDetail && (
-            <div className="overflow-hidden bg-[#e0e0e0] flex items-center justify-center">
+            <div
+              className="overflow-hidden flex items-center justify-center [backface-visibility:hidden]"
+              style={{ backgroundColor: activeDetail.bgColor || '#fcfcfc' }}
+            >
               <img
                 src={activeDetail.img}
                 alt={activeDetail.title}
                 className={cn(
-                  'max-w-[85vw] md:max-w-[50vw] max-h-[70vh] md:max-h-[75vh] w-auto h-auto object-contain transition-transform duration-[2000ms] ease-[cubic-bezier(0.22,1,0.36,1)] transform-gpu will-change-transform',
+                  'block max-w-[85vw] md:max-w-[50vw] max-h-[70vh] md:max-h-[75vh] w-auto h-auto object-contain transition-transform duration-[2000ms] ease-[cubic-bezier(0.22,1,0.36,1)] transform-gpu will-change-transform [backface-visibility:hidden]',
                   isDetailOpen ? 'scale-100' : 'scale-125',
                 )}
                 decoding="async"
