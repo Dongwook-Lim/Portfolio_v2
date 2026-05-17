@@ -33,6 +33,13 @@ export function GalleryItem({
   // Cache layout values to prevent layout thrashing
   const initialXRef = useRef(0);
   const widthRef = useRef(0);
+  const resetHoverState = () => {
+    setIsHovering(false);
+    isHoveredRef.current = false;
+  };
+  const canUseHoverOverride = () =>
+    window.matchMedia('(hover: hover) and (pointer: fine)').matches &&
+    navigator.maxTouchPoints === 0;
 
   // Measure initial position once on mount (and on resize)
   React.useEffect(() => {
@@ -157,7 +164,11 @@ export function GalleryItem({
 
     // 호버 시에도 여전히 컬러를 보고 싶다면 아래 로직 유지, 원치 않으면 삭제 가능
     // 현재�� 사용자가 '스크롤 멈추면 흑백으로' 요청했으므로, 우선 위치와 스크롤에 기반한 로직을 주로 반영
-    if (isHoveredRef.current) {
+    const canHoverOverride = canUseHoverOverride();
+    if (!canHoverOverride && isHoveredRef.current) {
+      isHoveredRef.current = false;
+    }
+    if (canHoverOverride && isHoveredRef.current) {
       targetGray = 0;
     }
 
@@ -174,14 +185,18 @@ export function GalleryItem({
   return (
     <div
       className="relative shrink-0 flex items-end justify-center cursor-pointer group w-[44px] md:w-[77px] h-[176px] md:h-[306px] transition-all duration-300 ease-out"
-      onClick={() => onOpenDetail(data)}
-      onMouseEnter={() => {
+      onClick={() => {
+        resetHoverState();
+        onOpenDetail(data);
+      }}
+      onPointerEnter={(e) => {
+        if (e.pointerType !== 'mouse' || !canUseHoverOverride()) return;
         setIsHovering(true);
         isHoveredRef.current = true;
       }}
-      onMouseLeave={() => {
-        setIsHovering(false);
-        isHoveredRef.current = false;
+      onPointerLeave={resetHoverState}
+      onPointerDown={(e) => {
+        if (e.pointerType !== 'mouse') resetHoverState();
       }}
     >
       <div
@@ -202,9 +217,9 @@ export function GalleryItem({
         />
 
         {/* Hover Overlay & Vertical Text */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100 transition-opacity duration-300 pointer-events-none overflow-hidden">
           {/* absolute와 origin-left를 활용해 텍스트를 하단에 고정하고 위로 뻗어나가게 세로로 배치합니다. bottom-2에서 bottom-0으로 수정해 아주 조금 더 아래로 내렸습니다. */}
-          <div className="absolute bottom-0 left-1/2 origin-left -rotate-90 flex flex-col items-start translate-y-6 group-hover:translate-y-0 transition-transform duration-300 ease-out">
+          <div className="absolute bottom-0 left-1/2 origin-left -rotate-90 flex flex-col items-start translate-y-6 [@media(hover:hover)_and_(pointer:fine)]:group-hover:translate-y-0 transition-transform duration-300 ease-out">
             <span className="text-white font-['Anton'] text-xl md:text-2xl tracking-[4px] uppercase whitespace-nowrap drop-shadow-md">
               {data.title}
             </span>
