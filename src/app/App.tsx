@@ -179,8 +179,7 @@ export function Gallery() {
   };
 
   const openDetail = (detail: GalleryItemData) => {
-    const requestId = openDetailRequestRef.current + 1;
-    openDetailRequestRef.current = requestId;
+    openDetailRequestRef.current += 1;
 
     if (closeTimeoutRef.current) {
       window.clearTimeout(closeTimeoutRef.current);
@@ -198,11 +197,8 @@ export function Gallery() {
     setIsDetailClosing(false);
     setIsDetailSwitching(false);
     setDetailChromeColor(getDetailTextColor(detail));
-
-    preloadDetailImage(detail).finally(() => {
-      if (openDetailRequestRef.current !== requestId) return;
-      setActiveDetail(detail);
-    });
+    setActiveDetail(detail);
+    preloadDetailImage(detail);
   };
 
   const triggerCloseDetail = () => {
