@@ -13,6 +13,7 @@ interface GalleryItemProps {
   smoothVelocity: MotionValue<number>;
   onOpenDetail: (data: any) => void;
   setIsHovering: (val: boolean) => void;
+  isTouchHighlighted?: boolean;
 }
 
 export function GalleryItem({
@@ -22,10 +23,12 @@ export function GalleryItem({
   smoothVelocity,
   onOpenDetail,
   setIsHovering,
+  isTouchHighlighted = false,
 }: GalleryItemProps) {
   const itemRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
   const isHoveredRef = useRef(false);
+  const isTouchHighlightedRef = useRef(isTouchHighlighted);
   const currentGrayRef = useRef(100);
   const currentTranslateYRef = useRef(0);
   const currentScrollFactorRef = useRef(0);
@@ -40,6 +43,10 @@ export function GalleryItem({
   const canUseHoverOverride = () =>
     window.matchMedia('(hover: hover) and (pointer: fine)').matches &&
     navigator.maxTouchPoints === 0;
+
+  React.useEffect(() => {
+    isTouchHighlightedRef.current = isTouchHighlighted;
+  }, [isTouchHighlighted]);
 
   // Measure initial position once on mount (and on resize)
   React.useEffect(() => {
@@ -169,6 +176,9 @@ export function GalleryItem({
       isHoveredRef.current = false;
     }
     if (canHoverOverride && isHoveredRef.current) {
+      targetGray = 0;
+    }
+    if (!canHoverOverride && isTouchHighlightedRef.current) {
       targetGray = 0;
     }
 

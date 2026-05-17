@@ -25,6 +25,20 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+function canUseTouchGalleryHighlight() {
+  if (typeof window === 'undefined') return false;
+  const hasDesktopHover = window.matchMedia(
+    '(hover: hover) and (pointer: fine)',
+  ).matches;
+
+  if (hasDesktopHover) return false;
+
+  return (
+    window.matchMedia('(pointer: coarse)').matches ||
+    navigator.maxTouchPoints > 0
+  );
+}
+
 function LoadingWave({ isActive }: { isActive: boolean }) {
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -106,6 +120,9 @@ export function Gallery() {
   const [isIntroLoading, setIsIntroLoading] = useState(true);
   const [maxScroll, setMaxScroll] = useState(0);
   const [currentSlide, setCurrentSlide] = useState(1);
+  const [highlightedGalleryId, setHighlightedGalleryId] = useState<
+    number | null
+  >(null);
   const { settings, isLoading: isAdminLoading } = useAdmin();
   const galleryData = isAdminLoading ? [] : settings.galleryData;
 
@@ -155,6 +172,14 @@ export function Gallery() {
   const isDetailChromeOpen = isDetailSurfaceOpen;
   const getDetailTextColor = (detail: GalleryItemData | null) =>
     detail?.textColor || settings.themeColor;
+  const updateTouchGalleryHighlight = (detail: GalleryItemData) => {
+    if (!canUseTouchGalleryHighlight()) return;
+    setHighlightedGalleryId(detail.id);
+  };
+  const clearTouchGalleryHighlightOnScroll = () => {
+    if (!canUseTouchGalleryHighlight()) return;
+    setHighlightedGalleryId(null);
+  };
 
   const preloadDetailImage = (detail: GalleryItemData) => {
     const cached = imagePreloadCacheRef.current.get(detail.img);
@@ -197,6 +222,7 @@ export function Gallery() {
     setIsDetailClosing(false);
     setIsDetailSwitching(false);
     setDetailChromeColor(getDetailTextColor(detail));
+    updateTouchGalleryHighlight(detail);
     setActiveDetail(detail);
     preloadDetailImage(detail);
   };
@@ -247,6 +273,7 @@ export function Gallery() {
       preloadDetailImage(nextDetail).finally(() => {
         if (openDetailRequestRef.current !== requestId) return;
         setActiveDetail(nextDetail);
+        updateTouchGalleryHighlight(nextDetail);
         detailChromeColorTimeoutRef.current = window.setTimeout(() => {
           setDetailChromeColor(getDetailTextColor(nextDetail));
           detailChromeColorTimeoutRef.current = null;
@@ -329,6 +356,10 @@ export function Gallery() {
       // 브라우저 기본 스크롤 동작 방지 (위아래 흔들림 방지)
       e.preventDefault();
 
+      if (Math.abs(e.deltaY) > 5 || Math.abs(e.deltaX) > 5) {
+        clearTouchGalleryHighlightOnScroll();
+      }
+
       targetScrollRef.current += e.deltaY * 1.5 + e.deltaX * 1.5;
       targetScrollRef.current = Math.max(
         0,
@@ -340,9 +371,11 @@ export function Gallery() {
     let isDragging = false;
     let startX = 0;
     let startY = 0;
+    let hasClearedHighlightInDrag = false;
 
     const handleStart = (e: MouseEvent | TouchEvent) => {
       isDragging = true;
+      hasClearedHighlightInDrag = false;
       startX = 'touches' in e ? e.touches[0].clientX : e.clientX;
       startY = 'touches' in e ? e.touches[0].clientY : e.clientY;
     };
@@ -372,6 +405,13 @@ export function Gallery() {
       const diffX = startX - currentX;
       const diffY = isTouchMove ? startY - currentY : 0;
       const dragSpeed = isTouchMove ? 3.2 : 2.0;
+      if (
+        !hasClearedHighlightInDrag &&
+        (Math.abs(diffX) > 4 || Math.abs(diffY) > 4)
+      ) {
+        clearTouchGalleryHighlightOnScroll();
+        hasClearedHighlightInDrag = true;
+      }
       targetScrollRef.current += (diffX + diffY) * dragSpeed;
       targetScrollRef.current = Math.max(
         0,
@@ -419,6 +459,15 @@ export function Gallery() {
       setDetailChromeColor(settings.themeColor);
     }
   }, [activeDetail, isDetailSwitching, settings.themeColor]);
+
+  useEffect(() => {
+    if (
+      highlightedGalleryId !== null &&
+      !galleryData.some((item) => item.id === highlightedGalleryId)
+    ) {
+      setHighlightedGalleryId(null);
+    }
+  }, [galleryData, highlightedGalleryId]);
 
   useEffect(() => {
     return () => {
@@ -566,6 +615,7 @@ export function Gallery() {
                 index={index}
                 smoothScrollX={smoothScrollX}
                 smoothVelocity={smoothVelocity}
+                isTouchHighlighted={highlightedGalleryId === data.id}
                 onOpenDetail={(d) => {
                   openDetail(d);
                 }}
