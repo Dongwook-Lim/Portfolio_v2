@@ -494,8 +494,8 @@ export function Gallery() {
     if (isAdminLoading || galleryData.length === 0) return;
     if (maxScroll > 0) {
       const ww = typeof window !== 'undefined' ? window.innerWidth : 1000;
-      // The first gallery item is perfectly centered when scroll reaches 400vw.
-      const galleryStart = ww * 4.0;
+      const isMobileViewport = ww < 768;
+      const galleryStart = isMobileViewport ? ww * 4.25 : ww * 4.0;
       // The last gallery item is perfectly centered taking into account the 100vw Contact Panel
       const galleryEnd = maxScroll - ww * 1.2;
 
@@ -532,18 +532,31 @@ export function Gallery() {
       </div>
 
       {/* Progress Indicator */}
-      <div className="hidden md:flex items-center pointer-events-none fixed bottom-12 left-1/2 -translate-x-1/2 z-40">
+      <div className="flex items-center pointer-events-none fixed bottom-6 md:bottom-12 left-1/2 -translate-x-1/2 z-40">
         <motion.div
-          className="flex gap-[8px] items-center justify-center h-[60px]"
+          className="flex gap-[6px] md:gap-[8px] items-center justify-center h-[52px] md:h-[60px]"
           style={{
             opacity: useTransform(smoothScrollX, (v) => {
               const ww =
                 typeof window !== 'undefined' ? window.innerWidth : 1000;
               if (maxScroll <= 0) return 0;
-              const inStart = ww * 3.6;
-              const inEnd = ww * 4.1;
-              const outStart = maxScroll - ww * 1.5;
-              const outEnd = maxScroll - ww * 0.8;
+              const isMobileViewport = ww < 768;
+              const galleryStart = ww * 4.0;
+              const galleryEnd = maxScroll - ww * 1.2;
+              const fadeOffset = ww * 0.25;
+              const outDelay = ww * 0.18;
+              const inStart = isMobileViewport
+                ? galleryStart + ww * 0.1
+                : ww * 3.6;
+              const inEnd = isMobileViewport
+                ? galleryStart + fadeOffset
+                : ww * 4.1;
+              const outStart = isMobileViewport
+                ? galleryEnd - fadeOffset + outDelay
+                : maxScroll - ww * 1.5;
+              const outEnd = isMobileViewport
+                ? galleryEnd + outDelay
+                : maxScroll - ww * 0.8;
 
               if (v < inStart) return 0;
               if (v >= inStart && v < inEnd)
