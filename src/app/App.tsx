@@ -119,7 +119,7 @@ export function Gallery() {
   const [detailChromeColor, setDetailChromeColor] = useState('#C29B4C');
   const [isIntroLoading, setIsIntroLoading] = useState(true);
   const [maxScroll, setMaxScroll] = useState(0);
-  const [desktopGalleryRange, setDesktopGalleryRange] = useState({
+  const [galleryItemRange, setGalleryItemRange] = useState({
     start: 0,
     end: 0,
   });
@@ -348,7 +348,7 @@ export function Gallery() {
           return currentScroll + rect.left + rect.width / 2 - ww / 2;
         };
 
-        setDesktopGalleryRange({
+        setGalleryItemRange({
           start: getCenteredScroll(firstGalleryItem),
           end: getCenteredScroll(lastGalleryItem),
         });
@@ -520,12 +520,12 @@ export function Gallery() {
       const ww = typeof window !== 'undefined' ? window.innerWidth : 1000;
       const isMobileViewport = ww < 768;
       const galleryStart = isMobileViewport
-        ? ww * 4.25
-        : desktopGalleryRange.start || ww * 4.0;
+        ? galleryItemRange.start || ww * 4.25
+        : galleryItemRange.start || ww * 4.0;
       // The last gallery item is perfectly centered taking into account the 100vw Contact Panel
       const galleryEnd = isMobileViewport
-        ? maxScroll - ww * 1.2
-        : desktopGalleryRange.end || maxScroll - ww * 1.2;
+        ? galleryItemRange.end || maxScroll - ww * 1.2
+        : galleryItemRange.end || maxScroll - ww * 1.2;
 
       if (latest < galleryStart) {
         setCurrentSlide(1);
@@ -571,19 +571,21 @@ export function Gallery() {
               const isMobileViewport = ww < 768;
               const galleryStart = ww * 4.0;
               const galleryEnd = maxScroll - ww * 1.2;
+              const measuredStart = galleryItemRange.start || galleryStart;
+              const measuredEnd = galleryItemRange.end || galleryEnd;
               const fadeOffset = ww * 0.25;
-              const outDelay = ww * 0.18;
+              const outDelay = ww * 0.32;
               const inStart = isMobileViewport
-                ? galleryStart + ww * 0.1
+                ? measuredStart - ww * 0.28
                 : ww * 3.6;
               const inEnd = isMobileViewport
-                ? galleryStart + fadeOffset
+                ? measuredStart
                 : ww * 4.1;
               const outStart = isMobileViewport
-                ? galleryEnd - fadeOffset + outDelay
+                ? measuredEnd - fadeOffset + outDelay
                 : maxScroll - ww * 1.5;
               const outEnd = isMobileViewport
-                ? galleryEnd + outDelay
+                ? measuredEnd + outDelay
                 : maxScroll - ww * 0.8;
 
               if (v < inStart) return 0;
