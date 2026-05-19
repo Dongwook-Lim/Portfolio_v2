@@ -774,7 +774,7 @@ export function Gallery() {
           onMouseEnter={() => setIsHovering(true)}
           onMouseLeave={() => setIsHovering(false)}
           className={cn(
-            'group absolute left-5 md:left-10 top-1/2 -translate-y-1/2 z-30 size-12 md:size-16 text-theme-primary flex items-center justify-center cursor-pointer transition-[opacity,transform,filter] duration-[1000ms] ease-[cubic-bezier(0.22,1,0.36,1)] focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary/60',
+            'group absolute -left-2.5 md:left-10 top-1/2 -translate-y-1/2 z-30 size-12 md:size-16 text-theme-primary flex items-center justify-center cursor-pointer transition-[opacity,transform,filter] duration-[1000ms] ease-[cubic-bezier(0.22,1,0.36,1)] focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary/60',
             isDetailChromeOpen
               ? 'opacity-100 translate-x-0 blur-0'
               : 'opacity-0 translate-x-0 blur-0',
@@ -799,7 +799,7 @@ export function Gallery() {
           onMouseEnter={() => setIsHovering(true)}
           onMouseLeave={() => setIsHovering(false)}
           className={cn(
-            'group absolute right-5 md:right-10 top-1/2 -translate-y-1/2 z-30 size-12 md:size-16 text-theme-primary flex items-center justify-center cursor-pointer transition-[opacity,transform,filter] duration-[1000ms] ease-[cubic-bezier(0.22,1,0.36,1)] focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary/60',
+            'group absolute -right-2.5 md:right-10 top-1/2 -translate-y-1/2 z-30 size-12 md:size-16 text-theme-primary flex items-center justify-center cursor-pointer transition-[opacity,transform,filter] duration-[1000ms] ease-[cubic-bezier(0.22,1,0.36,1)] focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary/60',
             isDetailChromeOpen
               ? 'opacity-100 translate-x-0 blur-0'
               : 'opacity-0 translate-x-0 blur-0',
@@ -841,7 +841,7 @@ export function Gallery() {
 
         <div
           className={cn(
-            'absolute bottom-8 right-8 md:bottom-12 md:right-12 z-20 text-[8px] md:text-[10px] tracking-[2px] text-theme-primary uppercase transition-[opacity,transform,filter] duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)] text-right',
+            'hidden md:block absolute bottom-8 right-8 md:bottom-12 md:right-12 z-20 text-[8px] md:text-[10px] tracking-[2px] text-theme-primary uppercase transition-[opacity,transform,filter] duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)] text-right',
             isDetailChromeOpen
               ? 'opacity-100 translate-y-0 blur-0'
               : 'opacity-0 translate-y-0 blur-0',
