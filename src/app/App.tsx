@@ -119,6 +119,10 @@ export function Gallery() {
   const [detailChromeColor, setDetailChromeColor] = useState('#C29B4C');
   const [isIntroLoading, setIsIntroLoading] = useState(true);
   const [maxScroll, setMaxScroll] = useState(0);
+  const [desktopGalleryRange, setDesktopGalleryRange] = useState({
+    start: 0,
+    end: 0,
+  });
   const [currentSlide, setCurrentSlide] = useState(1);
   const [highlightedGalleryId, setHighlightedGalleryId] = useState<
     number | null
@@ -127,6 +131,7 @@ export function Gallery() {
   const galleryData = isAdminLoading ? [] : settings.galleryData;
 
   const containerRef = useRef<HTMLDivElement>(null);
+  const galleryStripRef = useRef<HTMLDivElement>(null);
 
   // Custom cursor without delay (1:1 follow)
   const cursorX = useMotionValue(-100);
@@ -329,6 +334,25 @@ export function Gallery() {
           setMaxScroll(totalWidth);
         }
       }
+
+      const galleryItems = galleryStripRef.current?.children;
+      const firstGalleryItem = galleryItems?.[0] as HTMLElement | undefined;
+      const lastGalleryItem = galleryItems?.[galleryItems.length - 1] as
+        | HTMLElement
+        | undefined;
+      if (firstGalleryItem && lastGalleryItem) {
+        const ww = window.innerWidth;
+        const currentScroll = smoothScrollX.get();
+        const getCenteredScroll = (element: HTMLElement) => {
+          const rect = element.getBoundingClientRect();
+          return currentScroll + rect.left + rect.width / 2 - ww / 2;
+        };
+
+        setDesktopGalleryRange({
+          start: getCenteredScroll(firstGalleryItem),
+          end: getCenteredScroll(lastGalleryItem),
+        });
+      }
     };
 
     updateMaxScroll();
@@ -338,7 +362,7 @@ export function Gallery() {
       window.removeEventListener('resize', updateMaxScroll);
       clearTimeout(t);
     };
-  }, [galleryData.length, isAdminLoading]);
+  }, [galleryData.length, isAdminLoading, smoothScrollX]);
 
   // Wheel and drag handling
   useEffect(() => {
@@ -495,9 +519,13 @@ export function Gallery() {
     if (maxScroll > 0) {
       const ww = typeof window !== 'undefined' ? window.innerWidth : 1000;
       const isMobileViewport = ww < 768;
-      const galleryStart = isMobileViewport ? ww * 4.25 : ww * 4.0;
+      const galleryStart = isMobileViewport
+        ? ww * 4.25
+        : desktopGalleryRange.start || ww * 4.0;
       // The last gallery item is perfectly centered taking into account the 100vw Contact Panel
-      const galleryEnd = maxScroll - ww * 1.2;
+      const galleryEnd = isMobileViewport
+        ? maxScroll - ww * 1.2
+        : desktopGalleryRange.end || maxScroll - ww * 1.2;
 
       if (latest < galleryStart) {
         setCurrentSlide(1);
@@ -617,10 +645,13 @@ export function Gallery() {
           />
 
           {/* 2. Transition Spacer (allows the first gallery item to be centered) */}
-          <div className="w-[75vw] md:w-[30vw] shrink-0 bg-[#141414] h-full" />
+          <div className="w-[75vw] md:w-[40vw] shrink-0 bg-[#141414] h-full" />
 
           {/* 3. Interactive 3D Wave Gallery */}
-          <div className="flex items-center gap-[12px] md:gap-[18px] shrink-0 bg-[#141414]">
+          <div
+            ref={galleryStripRef}
+            className="flex items-center gap-[12px] md:gap-[18px] shrink-0 bg-[#141414]"
+          >
             {galleryData.map((data, index) => (
               <GalleryItem
                 key={data.id}
@@ -638,7 +669,7 @@ export function Gallery() {
           </div>
 
           {/* 4. Ending Spacer */}
-          <div className="w-[75vw] md:w-[40vw] shrink-0 bg-[#141414] h-full" />
+          <div className="w-[75vw] md:w-[60vw] shrink-0 bg-[#141414] h-full" />
 
           {/* 5. Contact Panel */}
           <ContactPanel
