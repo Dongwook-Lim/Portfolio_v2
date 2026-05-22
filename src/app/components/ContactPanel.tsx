@@ -231,6 +231,27 @@ export function ContactPanel({
           </span>
         </div>
       </motion.div>
+
+      {/* Mobile Follow Links */}
+      <div className="absolute bottom-18 left-8 z-20 flex flex-col gap-2 pointer-events-none md:hidden">
+        <span className="text-[#111] font-['Inter'] text-[10px] tracking-[1px] opacity-50 uppercase">
+          FOLLOW ME:
+        </span>
+        <div className="flex gap-4 text-[#111] font-['Inter'] text-[10px] font-medium tracking-[1px] uppercase pointer-events-auto">
+          <a href="#" className="hover:text-theme-primary transition-colors">
+            INSTAGRAM
+          </a>
+          <a href="#" className="hover:text-theme-primary transition-colors">
+            KAKAOTALK
+          </a>
+          <a
+            href="https://github.com/Dongwook-Lim"
+            className="hover:text-theme-primary transition-colors"
+          >
+            GITHUB
+          </a>
+        </div>
+      </div>
     </section>
   );
 }
